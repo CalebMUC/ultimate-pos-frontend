@@ -1,6 +1,2 @@
-# Vue 3 + Vite
-
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
-# Batch_ultimate
+# ultimate-pos-frontend
+ultimate-pos-frontend is the frontend interface for the Ultimate POS system. It provides an intuitive and responsive user experience for managing sales, tills, cashiers, products, audits, and system operations. Built with Vue.js and TailwindCSS, it offers real-time dashboards, role-based access, and easy navigation to support smooth day-to-day POS activities.
