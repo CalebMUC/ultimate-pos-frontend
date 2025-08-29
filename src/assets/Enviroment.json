@@ -1,0 +1,12 @@
+
+[
+
+   { "label": "TEST", 
+     "url": "https://localhost:7231/api" 
+   },
+   { 
+    "label": "LIVE",
+    "url": "https://batch-ultimate.onrender.com/api" 
+   }
+
+]

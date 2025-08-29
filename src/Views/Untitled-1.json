@@ -1,0 +1,64 @@
+{
+	"supplier": [
+		{
+			"addressDetails": [
+				{
+					"locationName": "kiambaa",
+					"postal": "0900",
+					"town": "323344"
+				}
+			],
+			"businessLicenseNumber": "string",
+			"contactDetails": [
+				{
+					"email": "ffee@gmail.com",
+					"name": "ffrr",
+					"phone": "07890234523"
+				}
+			],
+			"contractDetails": [
+				{
+					"contractEndDate": "2024-10-29",
+					"contractStartDate": "2024-10-12",
+					"terms":  "in good condition"
+					}
+				
+			],
+			"createdBy": "felo",
+			"industry": "construction",
+			"krapin": "string",
+			"paymentDetails": [
+				{
+					"bankAccount": {
+						"accountNumber": "9023323342",
+						"bankName": "ABBSA"
+					},
+					"mpesa": {
+						"paybill": {
+							"account": "345678",
+							"businessNumber": "567890"
+						},
+						"pochi": "07823435532",
+						"till": "999323"
+					}
+				}
+			],
+			"productInfo": [
+				{
+					"productsOffered": [
+						{
+							"category": "wee",
+							"name": "rrwrw",
+							"sku": "string"
+						}
+					]
+				}
+			],
+			"remarks": "test one",
+			"supplierId": "2343523",
+			"supplierName": "felo ltd",
+			"supplierType": "distributor",
+			"updatedBy": "chee"
+		}
+	]
+}
