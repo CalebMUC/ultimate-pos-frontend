@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import CartHeader from './CartHeader.vue'
-import CartTable from './CartTable.vue'
-import EmptyCart from './EmptyCart.vue'
+import CartHeader from './cartHeader.vue'
+import CartTable from './cartTable.vue'
+import EmptyCart from './emptyCart.vue'
 
 export default {
   name: 'CartSection',
