@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import ProductCard from './ProductCard.vue'
+import ProductCard from './productCard.vue'
 
 export default {
   name: 'ProductGrid',
