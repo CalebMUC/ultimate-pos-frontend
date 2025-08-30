@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import SummaryItem from './SummaryItem.vue'
+import SummaryItem from './summaryItem.vue'
 import PaymentButton from '../Buttons/paymentButton.vue';
 
 export default {
