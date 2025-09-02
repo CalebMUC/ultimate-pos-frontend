@@ -46,6 +46,7 @@ import { useToast } from "vue-toastification";
 import ModuleComponent from "../../components/ModuleComponent/ModuleComponent.vue";
 import PermissionModal from "../../components/Modals/PermissionModal.vue";
 import { ShieldCheckIcon } from "@heroicons/vue/24/outline";
+import { useRolePermissionsStore } from "../../store/RolePermissionsStore";
 
 export default {
   name: "RolesManagement",
@@ -61,6 +62,14 @@ export default {
     const selectedRole = ref(null);
     const selectedRolePermissions = ref([]);
     const permissionGroups = ref([]);
+
+    const roleStore = useRolePermissionsStore();
+
+
+    omMounted(()=>{
+      roleStore.GetPermissions();
+      roleStore.GetRoles();
+    })
 
     // Sample status options
     const statusOptions = ref([

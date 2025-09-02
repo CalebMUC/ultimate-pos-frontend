@@ -81,6 +81,15 @@ export default {
     const uniqueCategories = computed(() => [...new Set(products.value.map(item => item.categoryName))]);
     const uniqueBrands = computed(() => [...new Set(products.value.map(item => item.brand))]);
 
+    const units =ref([
+      {key : "1",value : "Kg"},
+      {key : "2",value : "pcs"},
+      {key : "3",value : "g"},
+      {key : "4",value : "lts"},
+      {key : "5",value : "dz"},
+      {key : "6",value : "bx"}
+    ])
+
     // Fetch initial data
     onMounted(async () => {
       await fetchProducts();
@@ -102,6 +111,12 @@ export default {
     const productFormFields = computed(() => [
       { key: "productName", label: "Product Name", type: "text", required: true, placeholder: "Enter product name" },
       { key: "productDescription", label: "Description", type: "textarea", maxLength: 500, placeholder: "Enter description" },
+      { key: "unit", label: "Unit", type: "select", required: true, 
+        options: units.value.map(unit => ({
+          value: unit.value,
+          label: unit.value
+        }))
+      },
       { key: "Weight_Volume", label: "Weight/Volume", type: "text", placeholder: "Enter weight/volume" },
       { key: "categoryID", label: "Category", type: "select", required: true, 
         options: categ.value.map(cat => ({

@@ -312,8 +312,16 @@
         active-class="bg-slate-600 text-white"
       >
         <PresentationChartLineIcon class="h-4 w-4 mr-3" />
-        Role & Permissions
+        Roles & [Permisions]
       </router-link>
+       <!-- <router-link 
+        to="/Roles/RolePermissions"
+        class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+        active-class="bg-slate-600 text-white"
+      >
+        <PresentationChartLineIcon class="h-4 w-4 mr-3" />
+        Permissions
+      </router-link> -->
       </div>
   </transition>
  </div>
