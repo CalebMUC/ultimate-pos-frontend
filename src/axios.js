@@ -70,8 +70,8 @@ export default {
 //-------------------------------------------------
    //RolePermission Endpoints ENDPOINTS
 //-------------------------------------------------
-GetRolePermissions() { 
-      return apiClient.post('/Authentication/GetRolePermissions', {},  {
+GetRolePermissions(postData) { 
+      return apiClient.post('/Authentication/GetRolePermissions', postData,  {
         // headers: {
         //   Authorization: `Bearer ${token}`,
         // },
@@ -91,9 +91,31 @@ GetRolePermissions() {
         return response;
       });
     },
+    
+    GetPermissionsModuleGroups() { 
+      return apiClient.post('/Authentication/GetPermissionsModules', {},  {
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
+      })
+      .then(response => { 
+        return response;
+      });
+    },
 
       GetRoles() { 
       return apiClient.post('/Authentication/GetRoles', {},  {
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
+      })
+      .then(response => { 
+        return response;
+      });
+    },
+
+     AddRole(postData) { 
+      return apiClient.post('/Authentication/AddRole', postData,  {
         // headers: {
         //   Authorization: `Bearer ${token}`,
         // },

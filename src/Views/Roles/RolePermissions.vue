@@ -17,7 +17,7 @@
     :showImportButton="false"
     :getId="getRoleId"
   >
-    <!-- ✅ Actions slot - This will show for each row -->
+    <!-- ✅ Row Actions -->
     <template #row-actions="{ item }">
       <button
         @click="openPermissionModal(item)"
@@ -65,33 +65,35 @@ export default {
 
     const roleStore = useRolePermissionsStore();
 
-    // Load roles and permissions
+    // Load roles
     const fetchRoles = async () => {
       try {
-        const response = await roleStore.GetRoles();
-        roles.value = response; // expect API to return roles array
+        await roleStore.fetchRoles(); // ✅ use action
+        roles.value = roleStore.roles; // ✅ get state
       } catch (error) {
         toast.error("Failed to load roles");
         console.error(error);
       }
     };
 
+    // Load and group permissions
     const fetchPermissions = async () => {
       try {
-        const response = await roleStore.GetPermissions();
-        groupPermissions(response);
+        await roleStore.fetchPermissions(); // ✅ use action
+        groupPermissions(roleStore.permissions); // ✅ use state
       } catch (error) {
         toast.error("Failed to load permissions");
         console.error(error);
       }
     };
 
-    // Group permissions by module for PermissionModal
+    // Group permissions by module
     const groupPermissions = (permissions) => {
       const grouped = permissions.reduce((acc, perm) => {
         if (!acc[perm.module]) acc[perm.module] = [];
         acc[perm.module].push({
-          key: perm.permissionName,
+          id: perm.permissionId,      // ✅ keep ID
+          key: perm.permissionName,   // ✅ used for checkboxes
           label: perm.description
         });
         return acc;
@@ -114,46 +116,33 @@ export default {
       { field: "createdAt", label: "Created On", type: "date", sortable: true }
     ];
 
-    // Form fields for roles
     const roleFormFields = computed(() => [
-      { 
-        key: "roleName", 
-        label: "Role Name", 
-        type: "text", 
-        required: true, 
-        placeholder: "Enter Role Name" 
-      },
-      { 
-        key: "description", 
-        label: "Description", 
-        type: "textarea", 
-        maxLength: 500, 
-        placeholder: "Enter description" 
-      },
-      { 
-        key: "isActive", 
-        label: "Status", 
-        type: "select", 
-        required: true, 
-        options: statusOptions.value,
-        placeholder: "Select status" 
-      }
+      { key: "roleName", label: "Role Name", type: "text", required: true, placeholder: "Enter Role Name" },
+      { key: "description", label: "Description", type: "textarea", maxLength: 500, placeholder: "Enter description" },
+      { key: "isActive", label: "Status", type: "select", required: true, options: statusOptions.value, placeholder: "Select status" }
     ]);
 
-    // Create Role
+    // CRUD methods
     const addRole = async (roleData) => {
-      try {
-        const newRole = await roleStore.AddRole(roleData);
-        roles.value.push(newRole);
-        toast.success("Role added successfully");
-        return newRole;
-      } catch (error) {
-        toast.error("Failed to add role");
-        throw error;
-      }
+  try {
+    // Extend the roleData with CreatedBy
+    const payload = {
+      ...roleData,
+      createdBy: "AdminUser" // 👉 replace with actual logged-in username/ID
     };
 
-    // Update Role
+    await roleStore.AddRole(payload);
+    await fetchRoles(); // ✅ refresh roles after saving
+
+    toast.success("Role added successfully");
+    return payload;
+  } catch (error) {
+    toast.error("Failed to add role");
+    throw error;
+  }
+};
+
+
     const updateRole = async (id, roleData) => {
       try {
         const updatedRole = await roleStore.UpdateRole(id, roleData);
@@ -167,7 +156,6 @@ export default {
       }
     };
 
-    // Delete Role
     const deleteRole = async (id) => {
       try {
         await roleStore.DeleteRole(id);
@@ -181,12 +169,18 @@ export default {
 
     const getRoleId = (role) => role.roleId;
 
-    // Open modal for permissions
+    // Open permissions modal
     const openPermissionModal = async (role) => {
       selectedRole.value = role;
       try {
-        const rolePermissions = await roleStore.GetRolePermissions(role.roleId);
-        selectedRolePermissions.value = rolePermissions?.permissions || [];
+        const rolePermissions = await roleStore.fetchRolePermissions(role.roleId); // ✅ use action
+
+        // Extract permissionName for pre-checks
+        if(rolePermissions.length > 0){
+        selectedRolePermissions.value =
+         rolePermissions[0].permissions|| [];
+        }
+
         showPermissionModal.value = true;
       } catch (error) {
         toast.error("Failed to load role permissions");
@@ -197,7 +191,14 @@ export default {
     // Save permissions
     const saveRolePermissions = async ({ roleId, permissions }) => {
       try {
-        await roleStore.UpdateRolePermissions(roleId, permissions);
+        // Convert selected permissionNames back to IDs
+        const selectedPermissionIds = permissionGroups.value
+          .flatMap(group => group.items)
+          .filter(perm => permissions.includes(perm.key))
+          .map(perm => perm.id);
+
+        await roleStore.SaveRolePermissions(roleId, selectedPermissionIds); // ✅ use correct action
+
         toast.success("Permissions updated successfully");
         showPermissionModal.value = false;
       } catch (error) {

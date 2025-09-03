@@ -24,7 +24,9 @@
                 :value="perm.key"
                 class="rounded border-gray-300 text-green-600 focus:ring-green-500"
               />
-              <label :for="perm.key" class="text-gray-600">{{ perm.label }}</label>
+              <label :for="perm.key" class="text-gray-600">
+                {{ perm.label }}
+              </label>
             </div>
           </div>
         </div>
@@ -51,15 +53,16 @@ import { ref, watch } from "vue";
 
 const props = defineProps({
   isOpen: Boolean,
-  role: Object, // role object passed from parent
-  permissions: Array, // grouped permission list
-  modelValue: Array, // pre-selected permissions
+  role: Object,
+  permissions: Array,   // grouped { name, items:[{ id, key, label }] }
+  modelValue: Array     // pre-selected permissionNames
 });
 
 const emits = defineEmits(["close", "save"]);
 
 const selectedPermissions = ref([]);
 
+// Keep checkboxes synced with parent modelValue
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -71,6 +74,9 @@ watch(
 const closeModal = () => emits("close");
 
 const savePermissions = () => {
-  emits("save", { roleId: props.role?.id, permissions: selectedPermissions.value });
+  emits("save", {
+    roleId: props.role?.roleId,         // ✅ use roleId
+    permissions: selectedPermissions.value // ✅ names, will be converted to IDs in parent
+  });
 };
 </script>
