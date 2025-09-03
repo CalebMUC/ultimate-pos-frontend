@@ -115,20 +115,23 @@ export const useRolePermissionsStore = defineStore('RolePermissionsStore', {
     },
 
     // 🔹 Save/update role permissions
-    async SaveRolePermissions(roleId, permissions) {
-      this.loading = true
-      return axios.SaveRolePermissions(roleId, permissions )
-        .then(() => {
-          this.rolePermissions[roleId] = permissions
-        })
-        .catch(error => {
-          this.error = error
-          console.error('Failed to save role permissions', error)
-          throw error
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    }
+async SaveRolePermissions(postData) {
+  this.loading = true
+  try {
+    const response = await axios.SaveRolePermissions(postData)
+
+    // ✅ update local state so UI reflects changes without refetch
+    this.rolePermissions[postData.roleId] = postData.permissions
+
+    return response.data // backend ResponseStatus
+  } catch (error) {
+    this.error = error
+    console.error('Failed to save role permissions', error)
+    throw error
+  } finally {
+    this.loading = false
+  }
+}
+
   }
 })

@@ -125,6 +125,17 @@ GetRolePermissions(postData) {
       });
     },
 
+     SaveRolePermissions(postData) { 
+      return apiClient.post('/Authentication/SaveRolePermissions', postData,  {
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
+      })
+      .then(response => { 
+        return response;
+      });
+    },
+
 //-------------------------------------------------
    //Dashboard ENDPOINTS
 //-------------------------------------------------

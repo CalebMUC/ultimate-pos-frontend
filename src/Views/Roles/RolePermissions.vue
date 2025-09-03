@@ -189,7 +189,7 @@ export default {
     };
 
     // Save permissions
-    const saveRolePermissions = async ({ roleId, permissions }) => {
+   const saveRolePermissions = async ({ roleId, permissions }) => {
       try {
         // Convert selected permissionNames back to IDs
         const selectedPermissionIds = permissionGroups.value
@@ -197,7 +197,12 @@ export default {
           .filter(perm => permissions.includes(perm.key))
           .map(perm => perm.id);
 
-        await roleStore.SaveRolePermissions(roleId, selectedPermissionIds); // ✅ use correct action
+        const payload = {
+          roleId: roleId,
+          permissions: selectedPermissionIds  // ✅ make it an array
+        };
+
+        await roleStore.SaveRolePermissions(payload);
 
         toast.success("Permissions updated successfully");
         showPermissionModal.value = false;
