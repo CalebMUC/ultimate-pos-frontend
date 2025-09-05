@@ -12,7 +12,7 @@
     :updateItem="updateRole"
     :deleteItem="deleteRole"
     searchPlaceholder="Search Roles..."
-    addButtonText="Add Role"
+    addButtonText="Add new Role"
     :showExportButtons="false"
     :showImportButton="false"
     :getId="getRoleId"
@@ -65,16 +65,16 @@ export default {
 
     const roleStore = useRolePermissionsStore();
 
-    // Load roles
-    const fetchRoles = async () => {
-      try {
-        await roleStore.fetchRoles(); // ✅ use action
-        roles.value = roleStore.roles; // ✅ get state
-      } catch (error) {
-        toast.error("Failed to load roles");
-        console.error(error);
-      }
-    };
+      // Load roles
+      const fetchRoles = async () => {
+        try {
+          await roleStore.fetchRoles(); // ✅ use action
+          roles.value = roleStore.roles; // ✅ get state
+        } catch (error) {
+          toast.error("Failed to load roles");
+          console.error(error);
+        }
+      };
 
     // Load and group permissions
     const fetchPermissions = async () => {

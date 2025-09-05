@@ -1,107 +1,139 @@
-import { defineStore } from 'pinia';
-import axios from '../axios';
+import { defineStore } from "pinia";
+import axios from "../axios";
 
-export const Useuserstore = defineStore('userstore', {
-  state: () => ({ 
-    AllDetails:[],  
-    // permissions: [], 
-    // details: [], 
-    // name:'',
-    // email:'',
-    // userid:'',
-    // phone:'',
-    // role:[],
-    // error: [], 
-    // success: '', 
+export const useUserStore = defineStore("userstore", {
+  state: () => ({
+    allDetails: null,
+    users: [],
+    userDetails: null,
 
-    status:'',
-    statusMessage:'',
-    token:'',
-    
+    token: "",
+    status: "",
+    statusMessage: "",
+    loading: false,
+    error: null,
   }),
 
-  getters: { 
-    // getPermissions: (state) => state.permissions,
-    // getDetails: (state) => state.details,
-    // getRole:(state) => state.role,
-    // getname:(state) => state.name,
-    // getemail:(state) => state.email,
-    // getuserid:(state) => state.userid,
-    // getphone:(state) => state.phone,
-    // getError:(state) => state.error,
-    // getsucces:(state)=>state.success,
-
-    getAllDetails: (state) => state.AllDetails,
-    getStatus:(state) => state.status,
-    getMessage:(state) => state.statusMessage,
-    getToken:(state) => state.token,
+  getters: {
+    getAllDetails: (state) => state.allDetails,
+    getUsers: (state) => state.users,
+    getUserDetails: (state) => state.userDetails,
+    getStatus: (state) => state.status,
+    getMessage: (state) => state.statusMessage,
+    getToken: (state) => state.token,
+    isLoading: (state) => state.loading,
+    getError: (state) => state.error,
   },
 
-  actions: {  
-
-    async LoginUser(ldata) {
-      try { 
- 
+  actions: {
+    // 🔹 Login user
+    async loginUser(ldata) {
+      this.loading = true;
+      this.error = null;
+      try {
         const response = await axios.ulogin(ldata);
-        this.AllDetails = response; 
-        // return response; 
-      } catch (error) {
-        this.error = error;
-        this.success = false;
-        throw error; 
-      }
-    },
+        this.allDetails = response;
+        this.token = response.token || "";
 
-    UserDetails(){
-        if (this.AllDetails) {
-
-             this.name = this.AllDetails.details.name || [];
-             this.userid = this.AllDetails.details.user_id || "";
-             this.email = this.AllDetails.details.email || "";
-             this.phone = this.AllDetails.details.phone || " ";
-
-             this.token = this.AllDetails.token || "";
-             this.success = this.AllDetails.success  || [];
-
-             
-
+        if (this.token) {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
         }
-    },
 
-   GetUserDetails(token,userid){
-     axios.getUserdetails(token,userid)
-      .then((response)=> {
-
-        this.permissions = response.permissions;
-        this.role = response.roles[0];
-
-        // console.log("permiss", this.permissions);
-        console.log("rrroles", this.role);
-        // return response;
-
-        
-      })
-      .catch((error)=>{
-        this.error = error.response;   
-      })
-    },
-
-
-    GetToken(postData) {
-      if (!this.Token) {
-        this.error = 'Authentication token not found';
-        return;
+        return response;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
       }
-      axios.generateToken(postData)
-      .then((response)=>{
-         this.data = response.data;
-      })
-      .catch((error)=>{
-        this.error = error.response;   
-      })
-    }
+    },
 
+    // 🔹 Extract user details
+    extractUserDetails() {
+      const details = this.allDetails?.details;
+      if (details) {
+        const { name, user_id, email, phone } = details;
+        this.userDetails = {
+          name: name || "",
+          userId: user_id || "",
+          email: email || "",
+          phone: phone || "",
+        };
+        this.token = this.allDetails.token || "";
+      }
+    },
 
+    // 🔹 Get all users
+    async getUsers() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.getUsers();
+        this.users = response || [];
+        return this.users;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
 
-  }
-})
+    // 🔹 Get single user
+    async getUserDetails(userId) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.getUserdetails(userId);
+        this.userDetails = {
+          ...response,
+          permissions: response.permissions || [],
+          role: response.roles?.[0] || null,
+        };
+        return this.userDetails;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 🔹 Add new user
+    async addUser(newUser) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.register(newUser);
+        this.users.push(response.data);
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 🔹 Generate token
+    async generateToken(postData) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.generateToken(postData);
+        this.token = response.data?.token || "";
+
+        if (this.token) {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+        }
+
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+});

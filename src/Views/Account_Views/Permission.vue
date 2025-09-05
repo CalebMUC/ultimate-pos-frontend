@@ -80,7 +80,7 @@ const sections = [
 
  <script>
   import {onMounted, computed,watch,ref} from 'vue'
-  import {Useuserstore} from '../../store/userstore'
+  import {useUserStore} from '../../store/userstore'
   import { usesenderstore } from '../../store/SenderIdStore'
 
 

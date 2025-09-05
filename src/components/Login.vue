@@ -213,7 +213,7 @@ import Swal from 'sweetalert2';
 import {useRouter } from 'vue-router'
 import axios from '../axios'
 import Register from './Register.vue';
-import {Useuserstore} from '../store/userstore';
+import {useUserStore} from '../store/userstore';
 import links from '../assets/Enviroment.json';
 import backgroundImageLeft from '../assets/bgLogin.jpg'
 import backgroundImageRight from '../assets/bgLogin.jpg'
@@ -243,7 +243,7 @@ export default {
 
 
 
-    const LoginUserStore = Useuserstore();
+    const LoginUserStore = useUserStore();
 
     const Loginresponse = computed(() => LoginUserStore.getAllDetails); 
 

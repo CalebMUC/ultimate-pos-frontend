@@ -11,14 +11,14 @@
           <span v-if="field.required" class="text-red-500">*</span>
         </label>
 
-        <!-- Text, Number, Email, Tel, Password Input -->
+        <!-- Text, Email, Tel, Password Input -->
         <input
-          v-if="['text', 'number', 'email', 'tel', 'password'].includes(field.type)"
+          v-if="['text', 'email', 'tel', 'password'].includes(field.type)"
           v-model="formData[field.key]"
           :type="field.type"
           :placeholder="field.placeholder"
           :required="field.required"
-          @input="validateField(field)"
+          @blur="validateField(field)"
           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-100 transition-all"
         />
 
@@ -130,33 +130,34 @@ export default {
     const validateField = (field) => {
       const value = formData.value[field.key];
 
+      // Clear previous error
+      delete errors.value[field.key];
+
       // Required check
       if (field.required && !value) {
         errors.value[field.key] = `${field.label} is required`;
         emit("validate", errors.value);
         return;
-      } else {
-        delete errors.value[field.key];
       }
 
-      // Number validation
-      if (field.type === "number" && value) {
-        if (isNaN(value) || value < 0) {
-          errors.value[field.key] = `${field.label} must be a valid number`;
-        }
+      // Skip further validation if empty
+      if (!value) {
+        emit("validate", errors.value);
+        return;
       }
 
       // Email validation
       if (field.type === "email" && value) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(value)) {
+        const cleanValue = value.trim();
+        if (!emailPattern.test(cleanValue)) {
           errors.value[field.key] = `${field.label} must be a valid email`;
         }
       }
 
       // Phone validation
       if (field.type === "tel" && value) {
-        const phonePattern = /^[0-9+\-\s]{7,15}$/;
+        const phonePattern = /^[\d\s\-\+\(\)]{7,15}$/;
         if (!phonePattern.test(value)) {
           errors.value[field.key] = `${field.label} must be a valid phone number`;
         }
@@ -191,4 +192,3 @@ export default {
   },
 };
 </script>
- 

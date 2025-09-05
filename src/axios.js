@@ -123,6 +123,7 @@ GetRolePermissions(postData) {
       .then(response => { 
         return response;
       });
+
     },
 
      SaveRolePermissions(postData) { 
@@ -134,6 +135,17 @@ GetRolePermissions(postData) {
       .then(response => { 
         return response;
       });
+    },
+
+    getUsers(token){
+    return apiClient.post('/Authentication/GetUsers', {
+    // headers: {
+    //   Authorization: `Bearer ${token}`,
+    //},
+  })
+  .then(response => {
+    return response.data;
+  });
     },
 
 //-------------------------------------------------
@@ -857,16 +869,16 @@ getPermissions(token) {
 },
  
 
-getUsers(token) {
-    return apiClient.get(`/accountdetails/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-  .then(response => {
-    return response.data;
-  });
-},
+// getUsers(token) {
+//     return apiClient.get(`/accountdetails/${id}`, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   })
+//   .then(response => {
+//     return response.data;
+//   });
+// },
 
 
 getLogDet(token) {

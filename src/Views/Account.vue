@@ -1,6 +1,5 @@
-<template>
+<!-- <template>
   <div class="min-h-screen flex flex-col md:flex-row">
-    <!-- Mobile Menu Button -->
     <div class="md:hidden p-4 bg-white shadow-md flex justify-between items-center">
       <h1 class="text-lg font-semibold">My Account</h1>
       <button @click="toggleSidebar" class="text-gray-600 focus:outline-none">
@@ -15,7 +14,6 @@
       </button>
     </div>
 
-    <!-- Sidebar -->
     <aside
       :class="[
         'bg-white md:w-1/5 p-6 shadow-md flex flex-col items-center md:items-start transition-all duration-300',
@@ -23,14 +21,14 @@
         'md:block'
       ]"
     >
-      <!-- Profile -->
+      <!-- Profile
       <div class="w-20 h-10 bg-gray-300 rounded-full overflow-hidden">
         <img src="https://via.placeholder.com/80x40" alt="Profile" class="w-full h-full object-cover" />
       </div>
       <h2 class="mt-4 text-lg font-semibold">{{ name }}</h2>
       <p class="text-gray-500 text-sm">{{ email }}</p>
 
-      <!-- Navigation -->
+      <!-- Navigation 
       <nav class="mt-6 w-full">
         <ul class="flex flex-col space-y-4 w-full">
           <li>
@@ -79,7 +77,7 @@
       </nav>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content 
     <main class="flex-1 p-6 bg-gray-50">
       <router-view />
     </main>
@@ -90,7 +88,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { errorState } from '../store/ErrorState';
 import { useRoute } from 'vue-router';
-import { Useuserstore } from '../store/userstore';
+import { useUserStore } from '../store/userstore';
 import { usesenderstore } from '../store/SenderIdStore';
 
 const route = useRoute();
@@ -99,7 +97,7 @@ const email = ref('');
 const userid = ref('');
 const isSidebarOpen = ref(false); // 👈 for toggling
 
-const contUserStore = Useuserstore();
+const contUserStore = useUserStore();
 const senderstore = usesenderstore();
 
 onMounted(() => {
@@ -107,7 +105,7 @@ onMounted(() => {
   email.value = localStorage.getItem('email');
   userid.value = localStorage.getItem("userid");
   const token = localStorage.getItem("token");
-  contUserStore.GetUserDetails(token, userid.value);
+  contUserStore.fetchUserDetails(token, userid.value);
 });
 
 const role = computed(() => contUserStore.getRole);
@@ -140,4 +138,10 @@ const toggleSidebar = () => {
 const activeClass = 'text-orange-500 font-semibold text-md';
 const defaultClass = 'text-green-600 font-semibold text-md px-4 py-2 hover:bg-gray-100 cursor-pointer';
 </script>
+ -->
 
+ <template>
+
+ </template>
+ <script>
+</script>
