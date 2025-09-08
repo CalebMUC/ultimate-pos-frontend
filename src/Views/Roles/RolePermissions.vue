@@ -24,7 +24,7 @@
         class="p-2 text-green-600 hover:bg-green-100 rounded-full"
         title="Manage Permissions"
       >
-        <ShieldCheckIcon class="w-5 h-5" />
+        <ShieldCheckIcon class="w-3 h-3" />
       </button>
     </template>
   </ModuleComponent>

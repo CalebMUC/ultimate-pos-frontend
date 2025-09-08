@@ -245,7 +245,7 @@ export default {
 
     const LoginUserStore = useUserStore();
 
-    const Loginresponse = computed(() => LoginUserStore.getAllDetails); 
+    const Loginresponse = computed(() => LoginUserStore.getUserDetails); 
 
 
     watch(() => errorState.message, (newVal) => {
@@ -254,21 +254,21 @@ export default {
       }
     })
           
-      watch(Loginresponse, (newValue) => {
-           status.value = newValue.status;
-           token.value = newValue.token;
-           message.value = newValue.message;
-            if(status.value == '200') {
-              localStorage.setItem('isLoggedIn', true); 
-              localStorage.setItem('token', newValue.token);
-              DisplayMessage("success", "Welcome back!");
-              router.push('/');
-            }
-            else{
-              const errorMsg =  message.value || 'Login failed. Please try again.'
-            ErrorMessage(errorMsg)
-            }
-        }); 
+      // watch(Loginresponse, (newValue) => {
+      //      status.value = newValue.status;
+      //      token.value = newValue.token;
+      //      message.value = newValue.message;
+      //       if(status.value == '200') {
+      //         localStorage.setItem('isLoggedIn', true); 
+      //         localStorage.setItem('token', newValue.token);
+      //         DisplayMessage("success", "Welcome back!");
+      //         router.push('/');
+      //       }
+      //       else{
+      //         const errorMsg =  message.value || 'Login failed. Please try again.'
+      //       ErrorMessage(errorMsg)
+      //       }
+      //   }); 
 
 
  
@@ -277,20 +277,45 @@ export default {
   }  
 
 
- const  loginuser = async (event) => {
-   if(validateDetails()){
-      event.preventDefault();   
+//  const  loginuser = async (event) => {
+//    if(validateDetails()){
+//       event.preventDefault();   
 
-       const authdata = { email: email.value, password: password.value, env: enviroment.value };
+//        const authdata = { email: email.value, password: password.value, env: enviroment.value };
         
-      try {  
-          LoginUserStore.LoginUser(authdata);
-       } 
-       catch(error) {
-         ErrorMessage(error)
-       }
+//       try {  
+//           LoginUserStore.loginUser(authdata);
+//        } 
+//        catch(error) {
+//          ErrorMessage(error)
+//        }
+//     }
+//   }
+
+// Login.vue setup()
+const loginuser = async (event) => {
+  if (validateDetails()) {
+    event.preventDefault();
+
+    const authdata = { email: email.value, password: password.value, env: enviroment.value };
+
+    try {
+      const response = await LoginUserStore.loginUser(authdata);
+
+      if (response?.token) {
+        localStorage.setItem("isLoggedIn", true);
+        localStorage.setItem("token", response.token);
+
+        DisplayMessage("success", "Welcome back!");
+        router.push("/");
+      } else {
+        ErrorMessage("Login failed. Please try again.");
+      }
+    } catch (error) {
+      ErrorMessage(error.message || "Something went wrong");
     }
   }
+};
 
   
     const validateDetails = () => {

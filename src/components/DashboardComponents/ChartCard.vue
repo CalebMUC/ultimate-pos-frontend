@@ -1,10 +1,10 @@
 <template>
   <div
-    class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col h-80 transition-all duration-300 hover:shadow-md"
+    class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-col h-72 transition-all duration-300 hover:shadow-md"
   >
     <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-base font-semibold text-gray-800">{{ title }}</h2>
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-sm font-medium text-gray-800">{{ title }}</h2>
     </div>
 
     <!-- Chart -->
@@ -59,14 +59,14 @@ export default {
                   : "top",
               labels: {
                 font: {
-                  family: "Inter, sans-serif", // Modern font
-                  size: 12,
+                  family: "Inter, sans-serif",
+                  size: 10, // 🔽 reduced font size
                 },
-                color: "#4B5563", // Tailwind gray-600
-                boxWidth: 12, // smaller icons
-                boxHeight: 12,
-                borderRadius: 4, // rounded legend icons
-                padding: 16,
+                color: "#4B5563",
+                boxWidth: 10, // 🔽 smaller legend icons
+                boxHeight: 10,
+                borderRadius: 3,
+                padding: 8, // 🔽 tighter spacing
               },
             },
           },

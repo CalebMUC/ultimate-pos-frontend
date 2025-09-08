@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
-import axios from "../axios";
+import axios, {apiClient} from "../axios";
 
 export const useUserStore = defineStore("userstore", {
   state: () => ({
     allDetails: null,
     users: [],
+    cashiers : [],
     userDetails: null,
 
     token: "",
@@ -17,6 +18,7 @@ export const useUserStore = defineStore("userstore", {
   getters: {
     getAllDetails: (state) => state.allDetails,
     getUsers: (state) => state.users,
+    getCashiers : (state) => state.cashiers,
     getUserDetails: (state) => state.userDetails,
     getStatus: (state) => state.status,
     getMessage: (state) => state.statusMessage,
@@ -32,11 +34,14 @@ export const useUserStore = defineStore("userstore", {
       this.error = null;
       try {
         const response = await axios.ulogin(ldata);
+
         this.allDetails = response;
         this.token = response.token || "";
 
         if (this.token) {
-          axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+          // ✅ Use your axios instance
+          apiClient.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+          localStorage.setItem("token", this.token);
         }
 
         return response;
@@ -64,13 +69,29 @@ export const useUserStore = defineStore("userstore", {
     },
 
     // 🔹 Get all users
-    async getUsers() {
+    async fetchUsers() {
       this.loading = true;
       this.error = null;
       try {
         const response = await axios.getUsers();
         this.users = response || [];
         return this.users;
+      } catch (error) {
+        this.error = error.response?.data || error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+     // 🔹 Get all users
+    async fetchCashiers() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.getCashiers();
+        this.cashiers = response || [];
+        return this.cashiers;
       } catch (error) {
         this.error = error.response?.data || error.message;
         throw error;

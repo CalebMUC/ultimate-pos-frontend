@@ -41,6 +41,8 @@ function setBaseURL(url) {
   apiClient.defaults.baseURL = url 
 }
 
+export { apiClient, setBaseURL };
+
 
 export default { 
 
@@ -147,6 +149,93 @@ GetRolePermissions(postData) {
     return response.data;
   });
     },
+
+     getCashiers(token){
+    return apiClient.post('/Authentication/GetCashiers', {
+    // headers: {
+    //   Authorization: `Bearer ${token}`,
+    //},
+  })
+  .then(response => {
+    return response.data;
+  });
+    },
+
+//-------------------------------------------------
+// Till Management Endpoints
+//-------------------------------------------------
+
+AddTill(postData) { 
+  return apiClient.post('/TillManagement/Add-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+UpdateTill(postData) { 
+  return apiClient.post('/TillManagement/Update-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+OpenTill(postData) { 
+  return apiClient.post('/TillManagement/Open-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+DeleteTill(tillId) { 
+  return apiClient.delete(`/TillManagement/DeleteTill/${tillId}`, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+GetTill(postData) { 
+  return apiClient.post('/TillManagement/Get-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+AssignTill(postData) { 
+  return apiClient.post('/TillManagement/Assign-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+SubmitClosure(postData) { 
+  return apiClient.post('/TillManagement/submit-closure', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+SuperviseTill(postData) { 
+  return apiClient.post('/TillManagement/supervise-till', postData, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+GetTillsUnderReview() { 
+  return apiClient.post('/TillManagement/Get-Tills-Under-Review', {}, {})
+    .then(response => { 
+      return response;
+    });
+},
+
+CloseTill(postData) { 
+  return apiClient.post('/TillManagement/Close-Till', postData, {})
+    .then(response => { 
+      return response;
+    });
+}
+,
+
 
 //-------------------------------------------------
    //Dashboard ENDPOINTS

@@ -12,7 +12,7 @@
     :updateItem="updateCashier"
     :deleteItem="deleteCashier"
     searchPlaceholder="Search Cashiers..."
-    addButtonText="Add Cashier"
+    addButtonText="Assign Till"
     :showExportButtons="false"
     :showImportButton="false"
     :getId="getCashierId"

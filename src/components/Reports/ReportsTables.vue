@@ -1,25 +1,25 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden text-xs">
+  <div class="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden text-xs">
     <!-- Top Controls -->
-    <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="p-2 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
       <!-- Search -->
-      <div class="relative w-full sm:w-64">
+      <div class="relative w-full sm:w-56">
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Search..."
-          class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+          class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none text-xs"
         />
-        <MagnifyingGlassIcon class="h-5 w-5 text-slate-400 absolute left-3 top-2.5" />
+        <MagnifyingGlassIcon class="h-4 w-4 text-slate-400 absolute left-2 top-1.5" />
       </div>
 
       <!-- Export & Print -->
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-1">
         <button
           @click="$emit('export')"
-          class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center"
+          class="px-2 py-1.5 bg-white border border-slate-300 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
           </svg>
@@ -28,9 +28,9 @@
 
         <button
           @click="$emit('print')"
-          class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center"
+          class="px-2 py-1.5 bg-white border border-slate-300 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
           </svg>
@@ -47,20 +47,20 @@
             <th
               v-for="(header, index) in headers"
               :key="index"
-              class="px-3 py-1 text-left text-xs text-slate-500 font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+              class="px-2 py-1.5 text-left text-xs text-slate-500 font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               @click="sortBy(index)"
             >
               <div class="flex items-center">
                 {{ header }}
-                <span v-if="sortColumn === index" class="ml-1">
-                  <ChevronUpIcon v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                  <ChevronDownIcon v-else class="h-4 w-4" />
+                <span v-if="sortColumn === index" class="ml-0.5">
+                  <ChevronUpIcon v-if="sortDirection === 'asc'" class="h-3.5 w-3.5" />
+                  <ChevronDownIcon v-else class="h-3.5 w-3.5" />
                 </span>
               </div>
             </th>
             <th
               v-if="hasActions"
-              class="px-3 py-3 text-left text-xs text-slate-500 font-medium uppercase tracking-wider"
+              class="px-2 py-1.5 text-left text-xs text-slate-500 font-medium uppercase tracking-wider"
             >
               Actions
             </th>
@@ -75,28 +75,28 @@
             <td
               v-for="(cell, cellIndex) in row"
               :key="cellIndex"
-              class="px-6 py-4 text-sm text-slate-700"
+              class="px-3 py-2 text-xs text-slate-700"
             >
               <slot :name="`cell-${cellIndex}`" :value="cell" :row="row">
                 {{ cell }}
               </slot>
             </td>
 
-            <td v-if="hasActions" class="px-6 py-4 text-sm text-slate-700 whitespace-nowrap">
-              <div class="flex space-x-2">
+            <td v-if="hasActions" class="px-3 py-2 text-xs text-slate-700 whitespace-nowrap">
+              <div class="flex space-x-1.5">
                 <button
                   @click="$emit('edit', row)"
                   class="text-blue-600 hover:text-blue-800"
                   title="Edit"
                 >
-                  <PencilIcon class="h-4 w-4" />
+                  <PencilIcon class="h-3.5 w-3.5" />
                 </button>
                 <button
                   @click="$emit('delete', row)"
                   class="text-red-600 hover:text-red-800"
                   title="Delete"
                 >
-                  <TrashIcon class="h-4 w-4" />
+                  <TrashIcon class="h-3.5 w-3.5" />
                 </button>
               </div>
             </td>
@@ -105,7 +105,7 @@
           <tr v-if="filteredRows.length === 0">
             <td
               :colspan="headers.length + (hasActions ? 1 : 0)"
-              class="px-6 py-4 text-center text-sm text-slate-500"
+              class="px-3 py-3 text-center text-xs text-slate-500"
             >
               No records found
             </td>
@@ -116,20 +116,20 @@
 
     <!-- Pagination -->
     <div
-      class="px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-slate-200 bg-slate-50"
+      class="px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-slate-200 bg-slate-50"
     >
       <!-- Left -->
-      <div class="mb-2 sm:mb-0 flex items-center space-x-2">
+      <div class="mb-1 sm:mb-0 flex items-center space-x-1.5">
         <select
           v-model="perPage"
-          class="border border-slate-300 rounded-md px-2 py-1 text-sm"
+          class="border border-slate-300 rounded px-1.5 py-1 text-xs"
         >
           <option value="5">5 per page</option>
           <option value="10">10 per page</option>
           <option value="25">25 per page</option>
           <option value="50">50 per page</option>
         </select>
-        <span class="text-sm text-slate-700">
+        <span class="text-xs text-slate-700">
           Showing {{ currentPage * perPage + 1 }} to
           {{ Math.min((currentPage + 1) * perPage, filteredRows.length) }} of
           {{ filteredRows.length }} entries
@@ -137,18 +137,18 @@
       </div>
 
       <!-- Right -->
-      <div class="flex space-x-2">
+      <div class="flex space-x-1.5">
         <button
           @click="prevPage"
           :disabled="currentPage === 0"
-          class="px-3 py-1 rounded border border-slate-300 text-sm disabled:opacity-50"
+          class="px-2 py-1 rounded border border-slate-300 text-xs disabled:opacity-50"
         >
           Previous
         </button>
         <button
           @click="nextPage"
           :disabled="(currentPage + 1) * perPage >= filteredRows.length"
-          class="px-3 py-1 rounded border border-slate-300 text-sm disabled:opacity-50"
+          class="px-2 py-1 rounded border border-slate-300 text-xs disabled:opacity-50"
         >
           Next
         </button>
@@ -255,7 +255,7 @@ const prevPage = () => {
   th,
   td {
     white-space: nowrap;
-    min-width: 100px;
+    min-width: 80px;
   }
 }
 </style>

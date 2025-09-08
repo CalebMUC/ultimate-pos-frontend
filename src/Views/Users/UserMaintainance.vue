@@ -140,7 +140,7 @@ export default {
     const fetchUsers = async () => {
       loading.value = true;
       try {
-        await userStore.fetchUsers();
+        await userStore.fetchUsers(); 
         return users.value = userStore.users;
       } catch (err) {
         toast.error("Failed to load users. Please try again.");
@@ -162,11 +162,15 @@ export default {
     const addUser = async (newUser) => {
       loading.value = true;
       try {
+        // remove confirmPassword before sending
+        const { confirmPassword, ...rest } = newUser;
+
         const payLoad = {
-          ...newUser,
-          createdBy : "AdminUser"
-        }
-        await userStore.addUser();
+          ...rest,
+          createdBy: "AdminUser",
+        };
+
+        await userStore.addUser(payLoad); // ✅ pass payload without confirmPassword
         await fetchUsers();
         return true;
       } catch (err) {
@@ -176,6 +180,7 @@ export default {
         loading.value = false;
       }
     };
+
 
     const updateUser = async (updatedUser) => {
       loading.value = true;

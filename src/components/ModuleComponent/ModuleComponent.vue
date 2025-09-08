@@ -1,25 +1,25 @@
 <template>
   <div class="rounded-xl border border-gray-200 bg-white h-full p-4 shadow-sm">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
       <div>
-        <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
-        <p class="text-sm text-gray-500">{{ description }}</p>
+        <h1 class="text-lg font-bold text-gray-800">{{ title }}</h1>
+        <p class="text-xs text-gray-500">{{ description }}</p>
       </div>
 
       <!-- Actions -->
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2">
         <!-- Export Buttons (Optional) -->
         <slot name="header-actions">
           <button 
             v-if="showExportButtons"
-            class="flex items-center px-3 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white text-xs font-medium shadow-sm transition-colors"
+            class="flex items-center px-2 py-1.5 rounded-md bg-red-500 hover:bg-red-600 text-white text-xs font-medium shadow-sm transition-colors"
           >
             PDF
           </button>
           <button 
             v-if="showExportButtons"
-            class="flex items-center px-3 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white text-xs font-medium shadow-sm transition-colors"
+            class="flex items-center px-2 py-1.5 rounded-md bg-green-500 hover:bg-green-600 text-white text-xs font-medium shadow-sm transition-colors"
           >
             XLS
           </button>
@@ -27,11 +27,11 @@
 
         <!-- Add Button -->
         <button
-        v-if="moduleName != 'TillSupervision'"
+          v-if="moduleName != 'TillSupervision'"
           @click="openModal(null)"
-          class="flex items-center gap-2 px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium shadow transition-colors"
+          class="flex items-center gap-1 px-3 py-1.5 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium shadow transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
           {{ addButtonText }}
@@ -40,13 +40,13 @@
         <!-- Import Button (Optional) -->
         <button
           v-if="showImportButton"
-          class="flex items-center gap-2 px-4 py-2 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium shadow transition-colors"
+          class="flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium shadow transition-colors"
         >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
-          Import {{ moduleNameSingular }}
+          Import
         </button>
 
         <!-- Custom Actions Slot -->
@@ -55,168 +55,170 @@
     </div>
 
     <!-- Filters & Search -->
-    <div class="flex flex-col md:flex-row justify-between items-center rounded-md shadow-sm gap-3 mb-4">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-3">
       <!-- Search Input -->
       <input 
         v-model="searchQuery" 
         @input="handleSearch" 
         type="text"
         :placeholder="searchPlaceholder"
-        class="w-full md:w-64 rounded-lg border border-gray-200 py-2 px-4 shadow-sm text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+        class="w-full md:w-56 rounded-lg border border-gray-200 py-1.5 px-3 shadow-sm text-xs focus:ring-1 focus:ring-blue-400 focus:border-blue-400 transition-all"
       />
 
       <!-- Dynamic Filters Slot -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <slot name="filters"></slot>
       </div>
     </div>
 
     <!-- Table -->
-<div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-  <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
-      <thead class="bg-gray-50">
-        <tr>
-          <th 
-            v-for="(column, index) in columns" 
-            :key="index" 
-            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer select-none"
-            @click="column.sortable ? toggleSort(column.field) : null"
-            :class="{'bg-gray-100': sortBy === column.field, 'cursor-default': !column.sortable}"
-          >
-            <div class="flex items-center">
-              {{ column.label }}
-              <span v-if="sortBy === column.field && column.sortable" class="ml-1">
-                <svg v-if="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </span>
-            </div>
-          </th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <tr v-for="(item, index) in paginatedData" :key="index" class="hover:bg-gray-50">
-          <td v-for="(column, colIndex) in columns" :key="colIndex" class="px-6 py-4 whitespace-nowrap">
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 bg-white text-xs">
+          <thead class="bg-gray-50">
+            <tr>
+              <th 
+                v-for="(column, index) in columns" 
+                :key="index" 
+                class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer select-none"
+                @click="column.sortable ? toggleSort(column.field) : null"
+                :class="{'bg-gray-100': sortBy === column.field, 'cursor-default': !column.sortable}"
+              >
+                <div class="flex items-center">
+                  {{ column.label }}
+                  <span v-if="sortBy === column.field && column.sortable" class="ml-1">
+                    <svg v-if="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
+              </th>
+              <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr v-for="(item, index) in paginatedData" :key="index" class="hover:bg-gray-50">
+              <td v-for="(column, colIndex) in columns" :key="colIndex" class="px-2 py-1.5 whitespace-nowrap">
+                
+                <!-- Product Name with truncation and tooltip -->
+                <div v-if="column.field === 'productName'" class="relative group">
+                  <span class="text-gray-700 truncate max-w-[120px] block text-xs">
+                    {{ item[column.field] }}
+                  </span>
+                  <!-- Tooltip for full product name -->
+                  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 
+                            bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 
+                            transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
+                    {{ item[column.field] }}
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 
+                              border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+                
+                <!-- Currency Type -->
+                <span v-else-if="column.type === 'currency'" :class="{'font-mono': column.mono, 'text-xs': true}">
+                  ${{ formatCurrency(item[column.field]) }}
+                </span>
+                
+                <!-- Badge Type -->
+                <span v-else-if="column.type === 'badge'" class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  {{ item[column.field] }}
+                </span>
+                
+                <!-- Status Type -->
+                <span v-else-if="column.type === 'status'" :class="[getStatusClasses(item[column.field]), 'text-xs']">
+                  {{ formatStatus(item[column.field]) }}
+                </span>
+                
+                <!-- Date Type -->
+                <span v-else-if="column.type === 'date'" class="text-xs text-gray-600">
+                  {{ formatDate(item[column.field]) }}
+                </span>
+                
+                <!-- Number Type -->
+                <span v-else-if="column.type === 'number'" :class="{'font-mono': column.mono, 'text-xs': true}">
+                  {{ formatNumber(item[column.field]) }}
+                </span>
+                
+                <!-- Default Type (Text) - For all other fields including productName that's already handled above -->
+                <span v-else-if="column.field !== 'productName'" class="text-gray-700 text-xs">
+                  {{ item[column.field] }}
+                </span>
+                
+              </td>
+              
+              <!-- Actions Column -->
+              <td class="px-3 py-1.5 whitespace-nowrap text-right">
+                <div class="flex items-center justify-end gap-1">
+                  <!-- Edit Button -->
+                  <button 
+                    v-if="moduleName != 'TillSupervision'"
+                    @click="openModal(item)" 
+                    class="p-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    :title="`Edit ${moduleNameSingular}`"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                    </svg>
+                  </button>
+                  
+                  <!-- Delete Button -->
+                  <button 
+                    v-if="moduleName != 'TillSupervision'"
+                    @click="confirmDelete(item)" 
+                    class="p-1 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                    :title="`Delete ${moduleNameSingular}`"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
+                        a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4
+                        a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                  
+                  <!-- Permission Button (Only for Roles module) -->
+                  <button 
+                    v-if="moduleName === 'Roles'"
+                    @click="openPermissionModal(item)" 
+                    class="p-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                    :title="`Manage ${moduleNameSingular} Permissions`"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </button>
+                  
+                  <!-- Custom Actions Slot -->
+                  <slot name="row-actions" :item="item"></slot>
+                </div>
+              </td>
+            </tr>
             
-            <!-- Product Name with truncation and tooltip -->
-            <div v-if="column.field === 'productName'" class="relative group">
-              <span class="text-gray-700 truncate max-w-[200px] block">
-                {{ item[column.field] }}
-              </span>
-              <!-- Tooltip for full product name -->
-              <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 
-                        bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 
-                        transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
-                {{ item[column.field] }}
-                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 
-                          border-transparent border-t-gray-800"></div>
-              </div>
-            </div>
-            
-            <!-- Currency Type -->
-            <span v-else-if="column.type === 'currency'" :class="{'font-mono': column.mono}">
-              ${{ formatCurrency(item[column.field]) }}
-            </span>
-            
-            <!-- Badge Type -->
-            <span v-else-if="column.type === 'badge'" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-              {{ item[column.field] }}
-            </span>
-            
-            <!-- Status Type -->
-            <span v-else-if="column.type === 'status'" :class="getStatusClasses(item[column.field])">
-              {{ formatStatus(item[column.field]) }}
-            </span>
-            
-            <!-- Date Type -->
-            <span v-else-if="column.type === 'date'">
-              {{ formatDate(item[column.field]) }}
-            </span>
-            
-            <!-- Number Type -->
-            <span v-else-if="column.type === 'number'" :class="{'font-mono': column.mono}">
-              {{ formatNumber(item[column.field]) }}
-            </span>
-            
-            <!-- Default Type (Text) - For all other fields including productName that's already handled above -->
-            <span v-else-if="column.field !== 'productName'" class="text-gray-700">
-              {{ item[column.field] }}
-            </span>
-            
-          </td>
-          
-          <!-- Actions Column -->
-          <td class="px-6 py-4 whitespace-nowrap text-right flex items-center justify-end gap-2">
-            <!-- Edit Button -->
-            <button 
-            v-if="moduleName != 'TillSupervision'"
-              @click="openModal(item)" 
-              class="p-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-              :title="`Edit ${moduleNameSingular}`"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-              </svg>
-            </button>
-            
-            <!-- Delete Button -->
-            <button 
-              v-if="moduleName != 'TillSupervision'"
-              @click="confirmDelete(item)" 
-              class="p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-              :title="`Delete ${moduleNameSingular}`"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
-                  a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4
-                  a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-            </button>
-            
-            <!-- Permission Button (Only for Roles module) -->
-            <button 
-              v-if="moduleName === 'Roles'"
-              @click="openPermissionModal(item)" 
-              class="p-2 rounded-md bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
-              :title="`Manage ${moduleNameSingular} Permissions`"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </button>
-            
-            <!-- Custom Actions Slot -->
-            <slot name="row-actions" :item="item"></slot>
-          </td>
-        </tr>
-        
-        <!-- Empty State -->
-        <tr v-if="filteredData.length === 0">
-          <td :colspan="columns.length + 1" class="px-6 py-8 text-center text-gray-500">
-            No {{ moduleName }} found
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+            <!-- Empty State -->
+            <tr v-if="filteredData.length === 0">
+              <td :colspan="columns.length + 1" class="px-4 py-4 text-center text-gray-500 text-xs">
+                No {{ moduleName }} found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- Pagination -->
-    <div v-if="filteredData.length > 0" class="px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200">
+    <div v-if="filteredData.length > 0" class="px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-gray-600">Show</span>
-        <select v-model="itemsPerPage" class="rounded-md border border-gray-300 py-1 px-2 text-sm">
+        <span class="text-xs text-gray-600">Show</span>
+        <select v-model="itemsPerPage" class="rounded border border-gray-300 py-1 px-2 text-xs">
           <option v-for="option in pageSizeOptions" :key="option" :value="option">{{ option }}</option>
         </select>
-        <span class="text-sm text-gray-600">entries</span>
+        <span class="text-xs text-gray-600">entries</span>
       </div>
       
-      <p class="text-sm text-gray-600">
+      <p class="text-xs text-gray-600">
         Showing <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
         to <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredData.length) }}</span>
         of <span class="font-medium">{{ filteredData.length }}</span> entries
@@ -226,25 +228,25 @@
         <button 
           @click="currentPage = 1" 
           :disabled="currentPage === 1"
-          :class="['px-3 py-1 rounded-md text-sm font-medium transition-colors', 
+          :class="['px-2 py-1 rounded text-xs font-medium transition-colors', 
                   currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700']"
         >
-          <<
+          &lt;&lt;
         </button>
         <button 
           @click="currentPage--" 
           :disabled="currentPage === 1"
-          :class="['px-3 py-1 rounded-md text-sm font-medium transition-colors', 
+          :class="['px-2 py-1 rounded text-xs font-medium transition-colors', 
                   currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700']"
         >
-          <
+          &lt;
         </button>
         
         <button 
           v-for="page in visiblePages" 
           :key="page" 
           @click="currentPage = page"
-          :class="['px-3 py-1 rounded-md text-sm font-medium transition-colors', 
+          :class="['px-2 py-1 rounded text-xs font-medium transition-colors', 
                   page === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700']"
         >
           {{ page }}
@@ -253,18 +255,18 @@
         <button 
           @click="currentPage++" 
           :disabled="currentPage === totalPages"
-          :class="['px-3 py-1 rounded-md text-sm font-medium transition-colors', 
+          :class="['px-2 py-1 rounded text-xs font-medium transition-colors', 
                   currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700']"
         >
-          >
+          &gt;
         </button>
         <button 
           @click="currentPage = totalPages" 
           :disabled="currentPage === totalPages"
-          :class="['px-3 py-1 rounded-md text-sm font-medium transition-colors', 
+          :class="['px-2 py-1 rounded text-xs font-medium transition-colors', 
                   currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 text-gray-700']"
         >
-          >>
+          &gt;&gt;
         </button>
       </div>
     </div>
@@ -430,7 +432,7 @@ export default {
     }
 
     const getStatusClasses = (status) => {
-      const baseClasses = 'px-2 py-1 text-xs rounded-full'
+      const baseClasses = 'px-1.5 py-0.5 text-xs rounded-full'
       const statusClasses = {
         'active': 'bg-green-100 text-green-800',
         'inactive': 'bg-red-100 text-red-800',

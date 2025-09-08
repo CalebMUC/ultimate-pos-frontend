@@ -12,110 +12,248 @@
     :updateItem="updateTill"
     :deleteItem="deleteTill"
     searchPlaceholder="Search Tills..."
-    addButtonText="Add Till"
+    addButtonText="Add new Till"
     :showExportButtons="false"
     :showImportButton="false"
     :getId="getTillId"
   >
-    <!-- You can also inject slot actions if ModuleComponent supports -->
+    <!-- ✅ Row Actions -->
+    <template #row-actions="{ item }">
+       <button
+        @click="showOpenModal(item)"
+        class="p-2 text-green-600 hover:bg-green-100 rounded-full"
+        title="Open Till"
+      >
+        <ShieldCheckIcon class="w-4 h-3" />
+      </button>
+      <button
+        @click="submitClosure(item)"
+        class="p-2 text-blue-600 hover:bg-blue-100 rounded-full"
+        title="Submit Closure"
+      >
+        Submit
+      </button>
+    </template>
   </ModuleComponent>
+
+  <TillOpenModal
+    :show="openModalVisible"
+    :till="selectedTill"
+    @close="openModalVisible = false"
+    @confirm="handleOpenTill"
+  />
 </template>
 
 <script>
 import { ref, computed, onMounted } from "vue";
+import { ShieldCheckIcon } from "@heroicons/vue/24/outline";
 import ModuleComponent from "../../components/ModuleComponent/ModuleComponent.vue";
+import { useTillManagementStore } from "../../store/TillManagementStore";
+import { useUserStore } from "../../store/userstore";
+import TillOpenModal from "../../components/Modals/TillOpenModal.vue";
 
 export default {
   name: "TillManagement",
-  components: { ModuleComponent },
+  components: { ModuleComponent,
+     ShieldCheckIcon,
+    TillOpenModal },
   setup() {
-    // 🟢 Dummy data
-    const tills = ref([
-      {
-        tillId: 1,
-        tillName: "Main Counter",
-        cashierName: "John Doe",
-        balance: 5000,
-        status: "Open",
-        createdOn: "2025-08-01",
-      },
-      {
-        tillId: 2,
-        tillName: "Back Office",
-        cashierName: "Jane Smith",
-        balance: 12000,
-        status: "Closed",
-        createdOn: "2025-08-05",
-      },
-      {
-        tillId: 3,
-        tillName: "Express Counter",
-        cashierName: "David Kim",
-        balance: 800,
-        status: "Suspended",
-        createdOn: "2025-08-10",
-      },
-    ]);
+    const tillStore = useTillManagementStore();
+    const userStore = useUserStore();
+    const tills = ref([]);
+    const cashiers = ref([]);
+
+     const openModalVisible = ref(false);
+  const selectedTill = ref(null);
+
+  const showOpenModal = (till) => {
+    selectedTill.value = till;
+    openModalVisible.value = true;
+  };
+
+  const handleOpenTill = async (payload) => {
+    try {
+      var payloadData = {
+        ...payload,
+        OpenedBy : "UltimatePos"
+      }
+      await tillStore.OpenTill(payloadData); // includes openingAmount, expectedAmount, notes
+      await fetchTills();
+      openModalVisible.value = false;
+    } catch (error) {
+      console.error("Error opening till:", error);
+    }
+  };
 
     // 🟢 Table columns
     const tillColumns = [
-      { field: "tillName", label: "Till Name", type: "text", sortable: true },
+      { field: "name", label: "Till Name", type: "text", sortable: true },
       { field: "cashierName", label: "Assigned Cashier", type: "text", sortable: true },
-      { field: "balance", label: "Balance", type: "currency", sortable: true },
+      { field: "currentAmount", label: "Balance", type: "currency", sortable: true },
       { field: "status", label: "Status", type: "status", sortable: true },
-      { field: "createdOn", label: "Created On", type: "date", sortable: true },
+      { field: "createdAt", label: "Created On", type: "date", sortable: true },
+      { field: "updatedAt", label: "UpdatedOn", type: "date", sortable: true },
     ];
 
-    // 🟢 Form fields for Add/Edit Till
+    // 🟢 Form fields
     const tillFormFields = computed(() => [
-      { key: "tillName", label: "Till Name", type: "text", required: true, placeholder: "Enter Till Name" },
-      { key: "cashierId", label: "Assign Cashier", type: "select", options: [
-          { value: 1, label: "John Doe" },
-          { value: 2, label: "Jane Smith" },
-          { value: 3, label: "David Kim" },
-        ], required: true },
-      { key: "balance", label: "Initial Balance", type: "number", required: true, placeholder: "Enter starting balance" },
-      { key: "status", label: "Status", type: "select", options: [
+      { key: "name", label: "Till Name", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea", required: true },
+       {
+        key: "userId",
+        label: "Assign Cashier",
+        type: "select",
+        options: cashiers.value.map((cashier) => ({
+          label: cashier.userName, // show username
+          value: cashier.userId,   // store userId
+        })),
+        required: true,
+      },
+      
+      {
+        key: "status",
+        label: "Status",
+        type: "select",
+        options: [
           { value: "Open", label: "Open" },
           { value: "Closed", label: "Closed" },
           { value: "Suspended", label: "Suspended" },
-        ], required: true },
+        ], 
+        required: true,
+      },
     ]);
 
-    // 🟢 CRUD Methods (Dummy for now)
+    // 🟢 CRUD + Flow methods
     const fetchTills = async () => {
-      console.log("Fetching tills...");
-      return tills.value;
+      try {
+        const response = await tillStore.GetTill();
+        tills.value = response || [];
+      } catch (error) {
+        console.error("Error fetching tills:", error);
+      }
+    };
+
+    const fetchCashiers = async () => {
+      try {
+        const response = await userStore.fetchCashiers();
+        cashiers.value = response || []; // Use cashiers.value instead of this.cashiers
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const addTill = async (newTill) => {
-      newTill.tillId = tills.value.length + 1;
-      tills.value.push(newTill);
-      console.log("Till added:", newTill);
+      try {
+        const payload = {
+          ...newTill,
+          createdBy : "AdminUser"
+        } 
+        await tillStore.AddTill(payload);
+        await fetchTills();
+      } catch (error) {
+        console.error("Error adding till:", error);
+      }
     };
 
     const updateTill = async (id, updatedTill) => {
-      const index = tills.value.findIndex((t) => t.tillId === id);
-      if (index !== -1) tills.value[index] = { ...tills.value[index], ...updatedTill };
-      console.log("Till updated:", updatedTill);
+      try {
+        await tillStore.UpdateTill({ tillId: id, ...updatedTill });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error updating till:", error);
+      }
     };
 
     const deleteTill = async (id) => {
-      tills.value = tills.value.filter((t) => t.tillId !== id);
-      console.log("Till deleted:", id);
+      try {
+        await tillStore.DeleteTill(id);
+        await fetchTills();
+      } catch (error) {
+        console.error("Error deleting till:", error);
+      }
+    };
+
+    const openTill = async (till) => {
+      try {
+        await tillStore.OpenTill({ tillId: till.tillId });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error opening till:", error);
+      }
+    };
+
+    const assignTill = async (tillId, cashierId) => {
+      try {
+        await tillStore.AssignTill({ tillId, cashierId });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error assigning till:", error);
+      }
+    };
+
+    const submitClosure = async (till) => {
+      try {
+        await tillStore.SubmitClosure({ tillId: till.tillId });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error submitting closure:", error);
+      }
+    };
+
+    const superviseTill = async (tillId, approved) => {
+      try {
+        await tillStore.SuperviseTill({ tillId, approved });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error supervising till:", error);
+      }
+    };
+
+    const getTillsUnderReview = async () => {
+      try {
+        const response = await tillStore.GetTillsUnderReview();
+        tills.value = response || [];
+      } catch (error) {
+        console.error("Error fetching tills under review:", error);
+      }
+    };
+
+    const closeTill = async (tillId) => {
+      try {
+        await tillStore.CloseTill({ tillId });
+        await fetchTills();
+      } catch (error) {
+        console.error("Error closing till:", error);
+      }
     };
 
     const getTillId = (till) => till.tillId;
+
+    onMounted(() => {
+      fetchTills();
+      fetchCashiers();
+    });
 
     return {
       tills,
       tillColumns,
       tillFormFields,
       fetchTills,
+      fetchCashiers,
       addTill,
       updateTill,
       deleteTill,
+      openTill,
+      assignTill,
+      submitClosure,
+      superviseTill,
+      getTillsUnderReview,
+      closeTill,
       getTillId,
+      openModalVisible,
+      selectedTill,
+      showOpenModal,
+      handleOpenTill,
     };
   },
 };
