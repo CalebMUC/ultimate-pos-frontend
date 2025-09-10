@@ -18,9 +18,31 @@
           :type="field.type"
           :placeholder="field.placeholder"
           :required="field.required"
-          @blur="validateField(field)"
+          
           class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-100 transition-all"
         />
+        <!-- @blur="validateField(field)" -->
+        <input
+          v-else-if="field.type == 'number'"
+          v-model="formData[field.key]"
+           :type="field.type"
+          :placeholder="field.placeholder"
+          :required="field.required"
+          
+          class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-100 transition-all"
+        />
+
+        <!-- @blur="validateField(field)" -->
+
+        <input
+          v-else-if="field.type == 'checkbox'"
+          v-model="formData[field.key]"
+          type="checkbox"
+          :true-value="true"
+          :false-value="false"
+          class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+
 
         <!-- Select Input -->
         <select

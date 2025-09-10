@@ -57,7 +57,7 @@ export default {
           { value: "archived", label: "Archived" },
         ]
       },
-      { key: "quantity", label: "Quantity", type: "number", required: true, placeholder: "Quantity" },
+      //{ key: "quantity", label: "Quantity", type: "number", required: true, placeholder: "Quantity" },
     ];
 
     // Generate category code

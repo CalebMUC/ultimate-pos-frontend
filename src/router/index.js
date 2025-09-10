@@ -42,6 +42,8 @@ import TillClosure from '../Views/Tell/TillClosure.vue'
 import SupervisorTillReview from '../Views/Tell/SupervisorTillReview.vue'
 import SystemAudit from '../Views/Audit/SystemAudit.vue'
 
+import { UseAuthStore } from '../store/auth'
+
 // import SalesReport from '../Views/Reports/SalesReport.vue'
 // import LowStockReport from '../Views/Reports/LowStockReport.vue'
 
@@ -79,7 +81,7 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
     path: '/inventory',
     name: 'inventory',
     component: Inventory,
-     meta: { requiresAuth: true }
+     meta: { requiresAuth: true, permission: "can_manage_inventory" }
   },
 
 
@@ -87,7 +89,7 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
     path: '/transactions',
     name: 'transactions',
     component: Transactions,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true,  permission: "can_view_transactions" }
   },
 
   {
@@ -152,7 +154,7 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
     path: '/Reports/Sales',
     name: 'SalesReport',
     component: SalesReport,
-     meta: { requiresAuth: true }
+     meta: { requiresAuth: true,  permission: "can_view_transactions" }
   },
 
   {
@@ -201,14 +203,14 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
     path: '/categories',
     name: 'categories',
     component: categories,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true,  permission: "can_manage_categories" }
   },
 
  {
     path: '/Documents',
     name: 'Documents',
     component: Documents,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true,  permission: "can_view_documents" }
   },
 
   // 
@@ -238,7 +240,7 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
     path: '/sell',
     name: 'sell',
     component: sale2,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true,permission : "can_make_sale" }
   },
 
 
@@ -319,16 +321,35 @@ const router = createRouter({
 
 
 //navigation guard to check if the user is logged in and has a valid token
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn');
-  const token = localStorage.getItem('token');
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+// router.beforeEach((to, from, next) => {
+//   const isLoggedIn = localStorage.getItem('isLoggedIn');
+//   const token = localStorage.getItem('token');
+//   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   
-  if (requiresAuth && (!isLoggedIn || !token)) {
-    next({ name: 'login' });
-  } else {
-    next();
+//   if (requiresAuth && (!isLoggedIn || !token)) {
+//     next({ name: 'login' });
+//   } else {
+//     next();
+//   }
+// });
+
+router.beforeEach((to, from, next) => {
+  const authStore = UseAuthStore();
+
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiredPermission = to.meta.permission;
+
+  if (requiresAuth && !authStore.token) {
+    // not logged in
+    return next({ name: 'login' });
   }
+
+  if (requiredPermission && !authStore.hasPermission(requiredPermission)) {
+    // lacks permission
+    return next({ name: 'home' }); // redirect to dashboard or show 403 page
+  }
+
+  next();
 });
 
 export default router

@@ -30,11 +30,29 @@
     </template>
 
     <!-- Custom Header Actions -->
-    <template #header-actions>
+    <!-- <template #header-actions>
       <button class="flex items-center px-3 py-2 rounded-md bg-purple-500 hover:bg-purple-600 text-white text-xs font-medium shadow-sm transition-colors">
         CSV
       </button>
+    </template> -->
+
+    <template #header-actions>
+      <!-- Import Button -->
+      <input
+        type="file"
+        accept=".xlsx, .xls, .csv"
+        @change="handleFileUpload"
+        class="hidden"
+        ref="fileInput"
+      />
+      <button
+        @click="$refs.fileInput.click()"
+        class="flex items-center px-3 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium shadow-sm transition-colors"
+      >
+        Import Excel
+      </button>
     </template>
+
 
     <!-- Custom Row Actions (if needed) -->
     <template #row-actions="{ item }">
@@ -60,6 +78,7 @@ import { errorState } from '../store/ErrorState';
 import { useSuppliersStore } from '../store/SuppliersStore';
 import { UseInventoryStore } from '../store/InventoryStore'
 import { useCategoryStore } from '../store/categoryStore'
+import { useBarcode } from "../components/BarCode/BarcodeScanner";
 
 export default {
   components: { ModuleComponent },
@@ -67,6 +86,8 @@ export default {
     const products = ref([]);
     const categoryFilter = ref("");
     const brandFilter = ref("");
+
+    const {generateEAN13,generateSKU} =  useBarcode();
     
     // Store properties
     const inventorystore = UseInventoryStore();
@@ -108,33 +129,39 @@ export default {
     ];
 
     // Form fields for products
-    const productFormFields = computed(() => [
-      { key: "productName", label: "Product Name", type: "text", required: true, placeholder: "Enter product name" },
-      { key: "productDescription", label: "Description", type: "textarea", maxLength: 500, placeholder: "Enter description" },
-      { key: "unit", label: "Unit", type: "select", required: true, 
-        options: units.value.map(unit => ({
-          value: unit.value,
-          label: unit.value
-        }))
-      },
-      { key: "Weight_Volume", label: "Weight/Volume", type: "text", placeholder: "Enter weight/volume" },
-      { key: "categoryID", label: "Category", type: "select", required: true, 
-        options: categ.value.map(cat => ({
-          value: cat.categoryID,
-          label: cat.categoryName
-        }))
-      },
-      { key: "supplierId", label: "Supplier", type: "select", required: true, 
-        options: supplierdata.value.map(supp => ({
-          value: supp.supplierId,
-          label: supp.supplierName
-        }))
-      },
-      { key: "buyingPrice", label: "Buying Price", type: "number", required: true, placeholder: "Enter buying price" },
-      { key: "sellingPrice", label: "Selling Price", type: "number", required: true, placeholder: "Enter selling price" },
-      { key: "quantity", label: "Quantity", type: "number", required: true, placeholder: "Enter quantity" },
-      { key: "brand", label: "Brand", type: "text", required: true, placeholder: "Enter brand" },
-    ]);
+const productFormFields = computed(() => [
+  { key: "productName", label: "Product Name", type: "text", required: true, placeholder: "Enter product name" },
+  { key: "productDescription", label: "Description", type: "textarea", maxLength: 500, placeholder: "Enter description" },
+  { key: "sku", label: "SKU", type: "text", placeholder: "Enter SKU (leave blank to auto-generate)" },
+  { key: "barcode", label: "Barcode", type: "text", placeholder: "Enter barcode (leave blank to auto-generate)" },
+  { key: "unit", label: "Unit", type: "select", required: true, 
+    options: units.value.map(unit => ({
+      value: unit.value,
+      label: unit.value
+    }))
+  },
+  { key: "weight_Volume", label: "Weight/Volume", type: "text", placeholder: "Enter weight/volume" },
+  { key: "categoryID", label: "Category", type: "select", required: true, 
+    options: categ.value.map(cat => ({
+      value: cat.categoryID,
+      label: cat.categoryName
+    }))
+  },
+  { key: "supplierId", label: "Supplier", type: "select", required: true, 
+    options: supplierdata.value.map(supp => ({
+      value: supp.supplierId,
+      label: supp.supplierName
+    }))
+  },
+  { key: "buyingPrice", label: "Buying Price", type: "number", required: true, placeholder: "Enter buying price" },
+  { key: "sellingPrice", label: "Selling Price", type: "number", required: true, placeholder: "Enter selling price" },
+  { key: "discountPrice", label: "Discount Price", type: "number", placeholder: "Enter discount price" },
+  { key: "quantity", label: "Quantity", type: "number", required: true, placeholder: "Enter quantity" },
+  { key: "reorderLevel", label: "Reorder Level", type: "number", required: true, placeholder: "Enter reorder level" },
+  { key: "status", label: "Active Status", type: "checkbox" },
+  { key: "brand", label: "Brand", type: "text", required: true, placeholder: "Enter brand" },
+]);
+
 
     // Get product ID (custom ID function for the generic component)
     const getProductId = (product) => product.productID;
@@ -153,37 +180,49 @@ export default {
     };
 
     // Add new product
-    const addProduct = async (productData) => {
-      try {
-        await inventorystore.AddnewProduct(productData);
-        await fetchProducts(); // Refresh the list
-        
-        Swal.fire('Success', 'Product created successfully', 'success');
-        return { success: true };
-      } catch (error) {
-        Swal.fire('Error', error.message || 'Failed to create product', 'error');
-        throw error;
-      }
-    };
+   const addProduct = async (productData) => {
+    try {
+      const payload = {
+        ...productData,
+        sku: productData.sku || generateSKU(productData.productName, productData.categoryID),
+        barcode: productData.barcode || generateEAN13(),
+        createdBy : "UltimatePos"
+      };
+
+      await inventorystore.AddnewProduct(payload);
+      await fetchProducts();
+
+      Swal.fire('Success', 'Product created successfully', 'success');
+      return { success: true };
+    } catch (error) {
+      Swal.fire('Error', error.message || 'Failed to create product', 'error');
+      throw error;
+    }
+  };
+
 
     // Update product
     const updateProduct = async (id, productData) => {
-      try {
-        const payload = {
-          ...productData,
-          productID: id
-        };
-        
-        await inventorystore.updateProduct(payload);
-        await fetchProducts(); // Refresh the list
-        
-        Swal.fire('Success', 'Product updated successfully', 'success');
-        return { success: true };
-      } catch (error) {
-        Swal.fire('Error', error.message || 'Failed to update product', 'error');
-        throw error;
-      }
+  try {
+    const payload = {
+      ...productData,
+      productID: id,
+      sku: productData.sku || generateSKU(productData.productName, productData.categoryID),
+      barcode: productData.barcode || generateEAN13(),
+      updatedBy : "UltimatePos"
     };
+
+    await inventorystore.updateProduct(payload);
+    await fetchProducts();
+
+    Swal.fire('Success', 'Product updated successfully', 'success');
+    return { success: true };
+  } catch (error) {
+    Swal.fire('Error', error.message || 'Failed to update product', 'error');
+    throw error;
+  }
+};
+
 
     // Delete product
     const deleteProduct = async (id) => {

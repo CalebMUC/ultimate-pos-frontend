@@ -218,6 +218,7 @@ import links from '../assets/Enviroment.json';
 import backgroundImageLeft from '../assets/bgLogin.jpg'
 import backgroundImageRight from '../assets/bgLogin.jpg'
 import { errorState } from '../store/ErrorState';
+import { UseAuthStore } from '../store/auth';
 
 export default {
   components: {
@@ -244,6 +245,8 @@ export default {
 
 
     const LoginUserStore = useUserStore();
+
+    const authStore = UseAuthStore();
 
     const Loginresponse = computed(() => LoginUserStore.getUserDetails); 
 
@@ -305,7 +308,7 @@ const loginuser = async (event) => {
       if (response?.token) {
         localStorage.setItem("isLoggedIn", true);
         localStorage.setItem("token", response.token);
-
+        authStore.login(response.token)
         DisplayMessage("success", "Welcome back!");
         router.push("/");
       } else {
