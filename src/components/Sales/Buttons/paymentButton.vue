@@ -1,8 +1,13 @@
 <template>
-  <button 
+  <button
+    :class="[
+      'px-3 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1',
+      disabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 
+      type === 'cash' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 focus:ring-blue-500' :
+      type === 'mpesa' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200 focus:ring-orange-500' :
+      'bg-purple-100 text-purple-700 hover:bg-purple-200 focus:ring-purple-500'
+    ]"
     :disabled="disabled"
-    :class="buttonClasses"
-    class="text-white font-medium rounded-lg px-6 py-2.5 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 flex items-center"
     @click="$emit('click')"
   >
     <slot></slot>
@@ -15,26 +20,12 @@ export default {
   props: {
     type: {
       type: String,
-      validator: value => ['cash', 'mpesa', 'credit'].includes(value),
-      required: true
+      default: 'cash',
+      validator: (value) => ['cash', 'mpesa', 'credit'].includes(value)
     },
-    disabled: Boolean
-  },
-  computed: {
-    buttonClasses() {
-      const baseClasses = {
-        cash: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-        mpesa: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
-        credit: 'bg-gray-700 hover:bg-gray-800 focus:ring-gray-500'
-      };
-      
-      const disabledClasses = {
-        cash: 'bg-blue-400 cursor-not-allowed',
-        mpesa: 'bg-green-400 cursor-not-allowed',
-        credit: 'bg-gray-400 cursor-not-allowed'
-      };
-      
-      return this.disabled ? disabledClasses[this.type] : baseClasses[this.type];
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['click']

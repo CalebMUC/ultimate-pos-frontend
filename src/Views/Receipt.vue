@@ -1,70 +1,78 @@
-
 <template>
-  <div id="receipt" class="receipt">
+  <div
+    id="receipt"
+    class="w-[80mm] font-mono text-xs leading-relaxed text-black mx-auto p-2"
+  >
     <!-- Header Section -->
-    <div class="header">
-      <h1>{{ businessName }}</h1>
+    <div class="text-center mb-2">
+      <h1 class="text-base font-bold">{{ businessName }}</h1>
       <p>{{ businessAddress }}</p>
       <p>Phone: {{ businessPhone }}</p>
       <p>Receipt #: {{ transaction.transactionID }}</p>
       <p>Date: {{ formatDate(transaction.transactionDate) }}</p>
     </div>
-    <hr />
+    <hr class="border-dashed border-black my-2" />
 
     <!-- Transaction Items -->
-    <div class="items-section">
-      <table class="items">
+    <div class="mb-2">
+      <table class="w-full border-collapse">
         <thead>
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
+          <tr class="border-b border-black">
+            <th class="text-left py-1">Item</th>
+            <th class="text-center py-1">Qty</th>
+            <th class="text-right py-1">Price</th>
+            <th class="text-right py-1">Total</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in transaction.items" :key="item.productID">
-            <td>{{ item.productName }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ formatCurrency(item.price) }}</td>
-            <td>{{ formatCurrency(item.quantity * item.price) }}</td>
+          <tr
+            v-for="item in transaction.items"
+            :key="item.productID"
+            class="border-b border-dotted border-black"
+          >
+            <td class="py-1">{{ item.productName }}</td>
+            <td class="text-center py-1">{{ item.quantity }}</td>
+            <td class="text-right py-1">{{ formatCurrency(item.price) }}</td>
+            <td class="text-right py-1">
+              {{ formatCurrency(item.quantity * item.price) }}
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <hr />
+    <hr class="border-dashed border-black my-2" />
 
     <!-- Totals Section -->
-    <div class="totals">
-      <p><strong>Subtotal:</strong> {{ formatCurrency(transaction.subtotal) }}</p>
-      <p><strong>VAT (16%):</strong> {{ formatCurrency(transaction.tax) }}</p>
-      <p><strong>Total:</strong> {{ formatCurrency(transaction.totalCost) }}</p>
+    <div class="text-right space-y-1">
+      <p><span class="font-bold">Subtotal:</span> {{ formatCurrency(transaction.subtotal) }}</p>
+      <p><span class="font-bold">VAT (16%):</span> {{ formatCurrency(transaction.tax) }}</p>
+      <p><span class="font-bold">Total:</span> {{ formatCurrency(transaction.totalCost) }}</p>
       <p v-if="transaction.paymentMethod === 'Mpesa'">
-        <strong>Paid via Mpesa:</strong> {{ formatCurrency(transaction.amountPaid) }}
+        <span class="font-bold">Paid via Mpesa:</span> {{ formatCurrency(transaction.amountPaid) }}
       </p>
-      <p><strong>Change:</strong> {{ formatCurrency(transaction.cashChange) }}</p>
+      <p><span class="font-bold">Change:</span> {{ formatCurrency(transaction.cashChange) }}</p>
     </div>
-    <hr />
+    <hr class="border-dashed border-black my-2" />
 
     <!-- Loyalty Points Section -->
-    <div class="loyalty">
-      <h2>Loyalty Program</h2>
-      <p><strong>Customer:</strong> {{ transaction.loyalty.customerName }}</p>
-      <p><strong>Loyalty Code:</strong> {{ transaction.loyalty.loyaltyCode }}</p>
-      <p><strong>Previous Points:</strong> {{ transaction.loyalty.previousPoints }}</p>
-      <p><strong>Points Earned:</strong> {{ transaction.loyalty.pointsEarned }}</p>
-      <p><strong>Total Points:</strong> {{ transaction.loyalty.totalPoints }}</p>
+    <div v-if="transaction.loyalty" class="mt-2">
+      <h2 class="font-semibold text-sm">Loyalty Program</h2>
+      <p><span class="font-bold">Customer:</span> {{ transaction.loyalty.customerName }}</p>
+      <p><span class="font-bold">Loyalty Code:</span> {{ transaction.loyalty.loyaltyCode }}</p>
+      <p><span class="font-bold">Previous Points:</span> {{ transaction.loyalty.previousPoints }}</p>
+      <p><span class="font-bold">Points Earned:</span> {{ transaction.loyalty.pointsEarned }}</p>
+      <p><span class="font-bold">Total Points:</span> {{ transaction.loyalty.totalPoints }}</p>
     </div>
-    <hr />
+    <hr class="border-dashed border-black my-2" />
 
     <!-- Footer Section -->
-    <div class="footer">
+    <div class="text-center mt-2 space-y-1">
       <p>Cashier: {{ transaction.cashier }}</p>
       <p>Supervisor: {{ transaction.supervisor }}</p>
       <p v-if="transaction.paymentMethod === 'Mpesa'">
         Mpesa Reference: {{ transaction.paymentReference }}
       </p>
-      <p>Thank you for shopping with us!</p>
+      <p class="mt-2">Thank you for shopping with us!</p>
       <p>Visit again!</p>
     </div>
   </div>
@@ -72,18 +80,11 @@
 
 <script>
 export default {
-  data() {
-    return {
-      businessName: "Your Business Name",
-      businessAddress: "123 Business Street, Nairobi",
-      businessPhone: "+254 712 345678",
-    };
-  },
   props: {
-    transaction: {
-      type: Object,
-      required: true,
-    },
+    businessName: { type: String, default: "Your Business Name" },
+    businessAddress: { type: String, default: "123 Business Street, Nairobi" },
+    businessPhone: { type: String, default: "+254 712 345678" },
+    transaction: { type: Object, required: true },
   },
   methods: {
     formatCurrency(amount) {
@@ -93,61 +94,37 @@ export default {
       }).format(amount);
     },
     formatDate(date) {
-      const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
+      const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
       return new Date(date).toLocaleDateString("en-KE", options);
     },
+    autoPrint() {
+      const receiptContent = document.getElementById("receipt").innerHTML;
+      const printWindow = window.open("", "", "width=400,height=600");
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Receipt</title>
+            <style>
+              body { font-family: Courier, monospace; font-size: 12px; width: 80mm; }
+            </style>
+          </head>
+          <body>${receiptContent}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    },
+  },
+  mounted() {
+    this.autoPrint();
   },
 };
 </script>
-
-<style>
-/* / Thermal receipt styling / */
-.receipt {
-  width: 80mm;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  color: #000;
-  text-align: left;
-  margin: 0 auto;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.items {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.items th, .items td {
-  padding: 5px;
-  text-align: left;
-}
-
-.items th {
-  border-bottom: 1px solid #000;
-}
-
-.items td {
-  border-bottom: 1px dotted #000;
-}
-
-.totals {
-  text-align: right;
-  margin: 10px 0;
-}
-
-.loyalty {
-  margin-top: 10px;
-}
-
-.footer {
-  text-align: center;
-  margin-top: 10px;
-}
-</style>

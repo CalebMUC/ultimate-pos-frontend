@@ -8,6 +8,7 @@ state: () => ({
     successmsg:null,
     success: false,
     error: null,
+    loading : false,
     token : localStorage.getItem('token')
   }),
 
@@ -17,7 +18,8 @@ getters: {
     // Add any getters if needed
     getData: (state) => state.data,
     getsuccess: (state) => state.success,
-    getError: (state) => state.error
+    getError: (state) => state.error,
+    getSuccessMsg: (state) => state.successmsg
   },
 
    actions: { 
@@ -28,13 +30,15 @@ getters: {
           axios.addtransaction(postdata)
             .then(response => {
                 this.data = response.data;
-                this.successmsg = response.data.statusMessage
+                this.successmsg = response.data.statusMessage || "Transaction Processed Successful"
+                this.success = true;
                 this.error = response.data.status
             })
             .catch(error => {
-                this.error=error;
-                this.successmsg = response.data.statusMessage;
-                this.error = response.data.status
+                this.error=error.response?.data || error.message;
+                this.successmsg = response.data.statusMessage || "Transaction Failed";
+                this.success = false;
+                //this.error = response.data.status
 
             });
         },

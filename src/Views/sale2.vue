@@ -4,7 +4,7 @@
     
     <div class="flex flex-col lg:flex-row mx-4 mt-4 gap-6">
       <!-- Products Section -->
-      <div class="w-full lg:w-2/5 bg-white shadow-sm rounded-lg border border-gray-200 flex flex-col">
+      <div class="w-full lg:w-3/5 bg-white shadow-sm rounded-lg border border-gray-200 flex flex-col">
         <productSearch
           v-model:searchQuery="searchQuery"
           v-model:selectedCategory="category"
@@ -57,30 +57,41 @@
       @close="CloseCredit"
       @submit="SubmitCredit"
     />
+    <Receipt
+      v-if="showReceipt"
+      :businessName="'My Shop Ltd'"
+      :businessAddress="'123 Market Street, Nairobi'"
+      :businessPhone="'+254 700 123456'"
+      :transaction="saleStore.getData"
+    />
+
+    
   </div>
 </template>
 
 <script>
-import { useCategoryStore } from '../store/categoryStore';
-import { UseInventoryStore } from '../store/InventoryStore';
-import { useSaleStore } from '../store/SaleStore';
-import { errorState } from '../store/ErrorState';
-import { useCatalogueStore } from '../store/catalogueStore';
-import Swal from 'sweetalert2';
-import { ref, onMounted, watch, computed, nextTick } from 'vue';
+import { useCategoryStore } from "../store/categoryStore";
+import { UseInventoryStore } from "../store/InventoryStore";
+import { useSaleStore } from "../store/SaleStore";
+import { errorState } from "../store/ErrorState";
+import { useCatalogueStore } from "../store/catalogueStore";
+import Swal from "sweetalert2";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
+import { v4 as uuidv4 } from "uuid";
 
-// Import components
-import Header from '../components/Sales/HeaderComponent/Header.vue';
-import productSearch from '../components/Sales/ProductSearchSection/productSearch.vue';
-import productGrid from '../components/Sales/ProductGrid/productGrid.vue';
-import cartSection from '../components/Sales/CartSection/cartSection.vue';
-import orderSummary from '../components/Sales/OrderSummary/orderSummary.vue';
-import MpesaModal from '../components/Modals/MpesaModal.vue';
-import CashModal from '../components/Modals/CashModal.vue';
-import CreditModal from '../components/Modals/CreditModal.vue';
+// Components
+import Header from "../components/Sales/HeaderComponent/Header.vue";
+import productSearch from "../components/Sales/ProductSearchSection/productSearch.vue";
+import productGrid from "../components/Sales/ProductGrid/productGrid.vue";
+import cartSection from "../components/Sales/CartSection/cartSection.vue";
+import orderSummary from "../components/Sales/OrderSummary/orderSummary.vue";
+import MpesaModal from "../components/Modals/MpesaModal.vue";
+import CashModal from "../components/Modals/CashModal.vue";
+import CreditModal from "../components/Modals/CreditModal.vue";
+import Receipt from "./Receipt.vue";
 
 export default {
-  name: 'SalePage',
+  name: "SalePage",
   components: {
     Header,
     productSearch,
@@ -89,7 +100,8 @@ export default {
     orderSummary,
     MpesaModal,
     CashModal,
-    CreditModal
+    CreditModal,
+    Receipt,
   },
   setup() {
     const CategoryStore = useCategoryStore();
@@ -97,9 +109,9 @@ export default {
     const saleStore = useSaleStore();
     const CatalogStore = useCatalogueStore();
 
-    // Refs and reactive data
-    const searchQuery = ref('');
-    const category = ref('');
+    // Refs
+    const searchQuery = ref("");
+    const category = ref("");
     const isMpesaOpen = ref(false);
     const isCashOpen = ref(false);
     const isCreditOpen = ref(false);
@@ -111,44 +123,15 @@ export default {
     const TtotalCost = ref(0);
     const searchSection = ref(null);
 
-    // Computed properties
+    // Receipt
+    const showReceipt = ref(false);
+
+    // Computed
     const categ = computed(() => CategoryStore.getData);
     const filteredProducts = computed(() => inventorystore.filterProducts);
     const hasSearchResults = computed(() => filteredProducts.value.length > 0);
 
-
-    // Methods
-    const handleSearchEnter = () => {
-      const query = searchQuery.value.trim();
-      if (!query) return;
-
-      const exactMatch = filteredProducts.value.find(
-        p => p.sku?.toLowerCase() == query.toLowerCase()
-      );
-
-      if (exactMatch) {
-        SelectedItem(exactMatch);
-        searchQuery.value = '';
-        focusSearch();
-      }
-    };
-
-    const focusSearch = () => {
-      nextTick(() => {
-        if (searchSection.value) {
-          searchSection.value.focus();
-        }
-      });
-    };
-
-    const productSearch = (query) => {
-      inventorystore.setSearchProduct(query);
-    };
-
-    const categorysearch = (categoryId) => {
-      inventorystore.setSearchCategory(categoryId);
-    };
-
+    // 🛒 Cart logic
     const updateItemQuantity = ({ item, quantity }) => {
       const itemprice = item.sellingPrice;
       if (quantity > 0) {
@@ -157,26 +140,38 @@ export default {
         item.subtotal = subtotal;
         item.count = quantity;
         TtotalCost.value = subtotal + previousTotal;
-        NoItems.value = selectedItems.value.reduce((total, item) => total + item.count, 0);
+        NoItems.value = selectedItems.value.reduce(
+          (total, item) => total + item.count,
+          0
+        );
       }
     };
 
     const SelectedItem = (product) => {
-      const existingProduct = selectedItems.value.find((selItem) => selItem.productID === product.productID);
-      
+      const existingProduct = selectedItems.value.find(
+        (selItem) => selItem.productID === product.productID
+      );
+
       if (existingProduct) {
         existingProduct.count += 1;
-        existingProduct.subtotal = existingProduct.count * product.sellingPrice;
+        existingProduct.subtotal =
+          existingProduct.count * product.sellingPrice;
       } else {
-        selectedItems.value.push({ 
-          ...product, 
-          count: 1, 
-          subtotal: product.sellingPrice 
+        selectedItems.value.push({
+          ...product,
+          count: 1,
+          subtotal: product.sellingPrice,
         });
       }
-      
-      TtotalCost.value = selectedItems.value.reduce((total, item) => total + item.subtotal, 0);
-      NoItems.value = selectedItems.value.reduce((total, item) => total + item.count, 0);
+
+      TtotalCost.value = selectedItems.value.reduce(
+        (total, item) => total + item.subtotal,
+        0
+      );
+      NoItems.value = selectedItems.value.reduce(
+        (total, item) => total + item.count,
+        0
+      );
     };
 
     const removeItem = (index) => {
@@ -186,78 +181,147 @@ export default {
       selectedItems.value.splice(index, 1);
     };
 
-    // Payment methods
+    // Payment Modals
     const OpenMpesa = () => {
-      if (selectedItems.value.length > 0) {
-        isMpesaOpen.value = true;
-      }
+      if (selectedItems.value.length > 0) isMpesaOpen.value = true;
     };
-
     const OpenCash = () => {
-      if (selectedItems.value.length > 0) {
-        isCashOpen.value = true;
-      }
+      if (selectedItems.value.length > 0) isCashOpen.value = true;
     };
-
     const OpencCredit = () => {
-      if (selectedItems.value.length > 0) {
-        isCreditOpen.value = true;
-      }
+      if (selectedItems.value.length > 0) isCreditOpen.value = true;
     };
 
-    const CloseMpesa = () => {
-      isMpesaOpen.value = false;
-    };
+    const CloseMpesa = () => (isMpesaOpen.value = false);
+    const CloseCash = () => (isCashOpen.value = false);
+    const CloseCredit = () => (isCreditOpen.value = false);
 
-    const CloseCash = () => {
-      isCashOpen.value = false;
-    };
-
-    const CloseCredit = () => {
-      isCreditOpen.value = false;
-    };
-
+    // Payment Handlers
     const PayViaMpesa = (phoneNumber) => {
-      // Implement M-Pesa payment logic
-      console.log('Processing M-Pesa payment for:', phoneNumber);
+      console.log("Processing M-Pesa payment for:", phoneNumber);
       CloseMpesa();
     };
 
-    const PayViaCash = (cashAmount) => {
-      // Implement cash payment logic
-      console.log('Processing cash payment:', cashAmount);
-      CloseCash();
+    const PayViaCash = (amount) => {
+      processTransaction({
+        paymentMethodId: 1,
+        paymentReference: "Cash Payment",
+        amountReceived: amount.cashAmount,
+        cashChange: amount.change,
+      });
     };
 
     const SubmitCredit = (creditData) => {
-      // Implement credit payment logic
-      console.log('Processing credit:', creditData);
+      console.log("Processing credit:", creditData);
       CloseCredit();
     };
 
-    // Lifecycle hooks
+    // Main Transaction Handler
+    const processTransaction = async ({
+      paymentMethodId,
+      paymentReference,
+      amountReceived,
+      cashChange,
+    }) => {
+      // const userId = localStorage.getItem("userId");
+
+      const payload = {
+        transaction: [
+          {
+            totalValueAddedTax: Vat.value,
+            totalCost: TtotalCost.value,
+            totalDiscount: Discount.value,
+            amountReceived: amountReceived,
+            cashChange: cashChange,
+            transactionproducts: selectedItems.value.map((item) => ({
+              productID: item.productID,
+              sku: item.sku,
+              productName: item.productName,
+              quantity: item.count,
+              price: item.sellingPrice,
+              discount: item.discount || 0,
+              subTotal: item.subtotal,
+            })),
+            paymentDetails: [
+              {
+                paymentMethodId,
+                paymentStatus: 1, // 1 = Paid
+                paymentReference,
+                amount: amountReceived,
+                transactionID: uuidv4(),
+              },
+            ],
+          },
+        ],
+      };
+
+      try {
+        await saleStore.Addtransaction(payload);
+
+        if (saleStore.success) {
+          // ✅ Clear cart
+          selectedItems.value = [];
+          NoItems.value = 0;
+          TtotalCost.value = 0;
+
+          // ✅ Close modals
+          CloseCash();
+          CloseMpesa();
+          CloseCredit();
+
+          Swal.fire({
+            icon: "success",
+            title: "Sale Completed",
+            text: saleStore.successmsg,
+          });
+
+          // ✅ Show receipt
+          //showReceipt.value = true;
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Transaction Failed",
+            text: saleStore.error?.message || saleStore.successmsg,
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Transaction Processing Failed",
+          text: error,
+        });
+      }
+    };
+
+    // Lifecycle
     onMounted(() => {
-      let token = localStorage.getItem('token');
-      //CatalogStore.fetchCatalogue(token);
+      const token = localStorage.getItem("token");
       CategoryStore.fetchCategories(token);
       inventorystore.getallproducts(token);
-       
       focusSearch();
     });
 
+    // Watches
     watch(() => searchQuery.value, (newVal) => {
-      productSearch(newVal);
+      inventorystore.setSearchProduct(newVal);
     });
 
     watch(() => category.value, (newVal) => {
-      categorysearch(newVal);
+      inventorystore.setSearchCategory(newVal);
     });
 
     watch(() => errorState.message, (newVal) => {
       if (newVal) {
-        DisplayMessage(`Error: ${errorState.code} - ${newVal}`);
+        Swal.fire("Error", `${errorState.code} - ${newVal}`, "error");
       }
     });
+
+    // Focus Search
+    const focusSearch = () => {
+      nextTick(() => {
+        if (searchSection.value) searchSection.value.focus();
+      });
+    };
 
     return {
       searchQuery,
@@ -275,7 +339,7 @@ export default {
       filteredProducts,
       hasSearchResults,
       searchSection,
-      handleSearchEnter,
+      handleSearchEnter: () => {},
       focusSearch,
       updateItemQuantity,
       SelectedItem,
@@ -288,11 +352,14 @@ export default {
       CloseCredit,
       PayViaMpesa,
       PayViaCash,
-      SubmitCredit
+      SubmitCredit,
+      showReceipt,
+      saleStore,
     };
-  }
+  },
 };
 </script>
+
 
 <style scoped>
 /* Your styles here */
