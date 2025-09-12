@@ -24,24 +24,27 @@ getters: {
 
    actions: { 
 
-    Addtransaction(postdata){     
+   Addtransaction(postdata) {     
       this.loading = true;
-      this.error = null;   
-          axios.addtransaction(postdata)
-            .then(response => {
-                this.data = response.data;
-                this.successmsg = response.data.statusMessage || "Transaction Processed Successful"
-                this.success = true;
-                this.error = response.data.status
-            })
-            .catch(error => {
-                this.error=error.response?.data || error.message;
-                this.successmsg = response.data.statusMessage || "Transaction Failed";
-                this.success = false;
-                //this.error = response.data.status
+      this.error = null;
 
-            });
-        },
+      axios.addtransaction(postdata)
+        .then(response => {
+          this.data = response.data;
+          this.successmsg = response.data.statusMessage || "Transaction Processed Successfully";
+          this.success = response.data.status === 200; // ✅ Only true if backend says 200
+          this.error = null; // ✅ Clear error
+        })
+        .catch(error => {
+          this.success = false;
+          this.successmsg = error.response?.data?.statusMessage || "Transaction Failed";
+          this.error = error.response?.data || error.message; // ✅ Assign actual error
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+
        
       setSearchquery(query) {
           this.searchquery.push(query);
