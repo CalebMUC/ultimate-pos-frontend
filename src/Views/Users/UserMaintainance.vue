@@ -19,6 +19,7 @@
       :getId="getUserId"
       :loading="loading"
       :error="error"
+      modal-size="md"
     />
   </div>
 </template>

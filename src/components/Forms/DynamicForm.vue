@@ -1,9 +1,9 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+   <div :class="`grid grid-cols-1 md:grid-cols-${columns} gap-4`">
     <div
       v-for="(field, index) in formFields"
       :key="index"
-      :class="field.type === 'textarea' ? 'col-span-1 md:col-span-2' : ''"
+      :class="field.type === 'textarea' ? `col-span-1 md:col-span-${columns}` : ''"
     >
       <div class="space-y-1">
         <label class="block text-sm font-medium text-gray-700">
@@ -107,11 +107,14 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    columns: { type: Number, default: 1 } 
   },
   emits: ["update:formData", "validate"],
   setup(props, { emit }) {
     const formData = ref({});
     const errors = ref({});
+
+    
 
     // Initialize form data
     const initializeFormData = () => {

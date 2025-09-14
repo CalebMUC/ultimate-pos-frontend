@@ -44,6 +44,8 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
 
 import { UseAuthStore } from '../store/auth'
 
+import PurchaseOrders from '../Views/Purchases/PurchaseOrders.vue'
+
 // import SalesReport from '../Views/Reports/SalesReport.vue'
 // import LowStockReport from '../Views/Reports/LowStockReport.vue'
 
@@ -144,6 +146,14 @@ import { UseAuthStore } from '../store/auth'
     path: '/Roles/RolePermissions',
     name: 'RolePermisions',
     component: RolePermissions,
+    //  meta: { requiresAuth: true }
+  },
+
+  //purchases
+   {
+    path: '/Purchases/PurchaseOrders',
+    name: 'PurchaseOrders',
+    component: PurchaseOrders,
     //  meta: { requiresAuth: true }
   },
 

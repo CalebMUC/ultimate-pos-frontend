@@ -16,6 +16,8 @@
     :showExportButtons="true"
     :showImportButton="true"
     :getId="getProductId"
+    modal-size="full"
+    form-columns="2"
   >
     <!-- Custom Filters for Products -->
     <template #filters>

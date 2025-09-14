@@ -273,22 +273,71 @@
 
     <!-- Modal -->
     <ReusableModal
-      :isOpen="isModalOpen"
-      :title="currentItem ? `Edit ${moduleNameSingular}` : `Add New ${moduleNameSingular}`"
-      :confirmText="currentItem ? 'Update' : 'Add'"
-      :isFormValid="isFormValid"
-      @update:isOpen="isModalOpen = $event"
-      @confirm="handleConfirm"
-    >
-      <template #content>
+  :isOpen="isModalOpen"
+  :title="currentItem ? `Edit ${moduleNameSingular}` : `Add New ${moduleNameSingular}`"
+  :confirmText="currentItem ? 'Update' : 'Add'"
+  :isFormValid="isFormValid"
+  @update:isOpen="isModalOpen = $event"
+  @confirm="handleConfirm"
+  :size="modalSize"
+  :formColumns="formColumns"
+>
+  <!-- ✅ Default slot now works for form fields -->
+  <div v-if="!isPurchase" class="grid gap-4">
+
+    <!-- <template #content> -->
         <DynamicForm
           :formFields="formFields"
           :initialData="currentItem || {}"
           @update:formData="formData = $event"
           @validate="errors = $event"
+          :columns="formColumns"
         />
-      </template>
-    </ReusableModal>
+      <!-- </template> -->
+
+    <!-- <div v-for="field in formFields" :key="field.name">
+      <label class="block text-sm font-medium text-gray-700">
+        {{ field.label }}
+      </label>
+      <input
+        v-if="field.type === 'text' || field.type === 'number'"
+        v-model="formData[field.name]"
+        :type="field.type"
+        class="w-full p-2 border rounded"
+      />
+      <select
+        v-else-if="field.type === 'select'"
+        v-model="formData[field.name]"
+        class="w-full p-2 border rounded"
+      >
+        <option v-for="opt in field.options" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+
+       <textarea
+          v-else-if="field.type === 'textarea'"
+          v-model="formData[field.key]"
+          :placeholder="field.placeholder"
+          :maxlength="field.maxLength"
+          :required="field.required"
+          @input="validateField(field)"
+          rows="3"
+          class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-200 transition-all"
+        ></textarea> -->
+
+    <!-- </div> -->
+  </div>
+
+  <!-- Purchases use custom form -->
+  <PurchaseForm
+    v-else
+    :initial-data="currentItem"
+    @update:formData="formData = $event"
+    @valid="isFormValid = $event"
+  />
+</ReusableModal>
+
   </div>
 </template>
 
@@ -296,7 +345,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import ReusableModal from '../Modals/ReusableModal.vue'
 import DynamicForm from '../Forms/DynamicForm.vue'
+import PurchaseForm from '../Forms/PurchasesForm.vue' // Import the PurchaseForm component
 import Swal from 'sweetalert2'
+
 
 export default {
   name: "ModuleComponent",
@@ -318,10 +369,14 @@ export default {
     showExportButtons: { type: Boolean, default: false },
     showImportButton: { type: Boolean, default: false },
     // Optional: Custom function to extract ID from items
-    getId: { type: Function, default: (item) => item.id }
+    getId: { type: Function, default: (item) => item.id },
+    // New prop to explicitly indicate if this is a purchase form
+    isPurchase: { type: Boolean, default: false },
+    modalSize: { type: String, default: "md" },
+    formColumns: { type: Number, default: 1 }
   },
 
-  components: { ReusableModal, DynamicForm },
+  components: { ReusableModal, DynamicForm, PurchaseForm },
 
   emits: ['open-permission-modal'],
 
@@ -337,6 +392,11 @@ export default {
     const errors = ref({})
     
     const pageSizeOptions = [5, 10, 20, 50, 100]
+
+    // Check if this is a purchase form based on props or module name
+    const isPurchaseForm = computed(() => {
+      return props.isPurchase || props.moduleName.toLowerCase().includes('purchase')
+    })
 
     const isFormValid = computed(() => Object.keys(errors.value).length === 0)
 
@@ -535,6 +595,7 @@ export default {
       formData,
       errors,
       isFormValid,
+      isPurchaseForm,
       handleSearch, 
       formatCurrency,
       formatNumber,

@@ -1,7 +1,7 @@
 <template>
   <aside 
     v-if="showSidebar"
-    class="flex h-full flex-col justify-between border-e bg-slate-800 w-64 transition-all duration-300 ease-in-out"
+    class="flex h-full flex-col justify-between border-e bg-slate   -800 w-64 transition-all duration-300 ease-in-out"
   >
     <div class="px-4 py-4">
       <!-- Navigation Menu -->
@@ -431,6 +431,140 @@
                 <PresentationChartLineIcon class="h-4 w-4 mr-3" />
                 Till Supervision
               </router-link>
+            </div>
+          </transition>
+        </div>
+      
+
+
+         <!-- Finance -->
+        <div class="group relative">
+          <button
+            @click="toggleMenu('Finance')"
+            class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+            
+          >
+            <div class="flex items-center">
+              <CurrencyDollarIcon class="h-5 w-5 text-slate-300 group-hover:text-white" />
+              <span class="ml-3">Finance</span>
+            </div>
+            <ChevronDownIcon 
+              :class="[
+                'h-4 w-4 transform transition-transform duration-200',
+                openMenu === 'Finance' ? 'rotate-180' : ''
+              ]" 
+            />
+
+          </button>
+            <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div 
+              v-show="openMenu === 'Finance'"
+              class="ml-8 mt-1 space-y-1 overflow-hidden rounded-lg bg-slate-700/50"
+            >
+              <router-link 
+                to="/Finance/Expenses"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <ArrowDownCircleIcon class="h-4 w-4 mr-3" />
+                Expense
+              </router-link>
+              <router-link 
+                to="/Finance/ExpenseCategories"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <TagIcon class="h-4 w-4 mr-3" />
+                Expense Categories
+              </router-link>
+
+              <router-link 
+                to="/Finance/Income"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <ArrowUpCircleIcon class="h-4 w-4 mr-3" />
+                Income
+              </router-link>
+
+               <router-link 
+                v-if="hasPermission('can_manage_income_sources')"
+                to="/Finance/IncomeSources"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <TagIcon class="h-4 w-4 mr-3" />
+                Income Sources
+              </router-link>
+            </div>
+          </transition>
+        </div>
+
+         <!-- Purchases -->
+        <div class="group relative">
+          <button
+            @click="toggleMenu('Purchases')"
+            class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+            
+          >
+            <div class="flex items-center">
+              <ShoppingCartIcon class="h-5 w-5 text-slate-300 group-hover:text-white" />
+              <span class="ml-3">Purchases</span>
+            </div>
+            <ChevronDownIcon 
+              :class="[
+                'h-4 w-4 transform transition-transform duration-200',
+                openMenu === 'Purchases' ? 'rotate-180' : ''
+              ]" 
+            />
+
+          </button>
+            <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div 
+              v-show="openMenu === 'Purchases'"
+              class="ml-8 mt-1 space-y-1 overflow-hidden rounded-lg bg-slate-700/50"
+            >
+              <router-link 
+                to="/Purchases/Purchases"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                 <ShoppingCartIcon class="h-4 w-4 mr-3" />
+                Purchases
+              </router-link>
+
+                <router-link 
+                to="/Purchases/PurchaseOrders"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                 <DocumentTextIcon class="h-4 w-4 mr-3" />
+                Purchase Orders
+              </router-link>
+
+              <router-link 
+                to="/Purchases/Invoices"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <DocumentTextIcon class="h-4 w-4 mr-3" />
+                Invoices
+              </router-link>
+
             </div>
           </transition>
         </div>
