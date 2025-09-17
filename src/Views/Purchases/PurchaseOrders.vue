@@ -41,6 +41,8 @@ export default {
       { field: 'supplierName', label: 'Supplier', sortable: true },
       { field: 'date', label: 'Date', type: 'date', sortable: true },
       { field: 'total', label: 'Total', type: 'currency', sortable: true },
+      { field: 'paid', label: 'Paid', type: 'currency', sortable: true },
+      { field: 'dueAmount', label: 'Due', type: 'currency', sortable: true },
       { field: 'status', label: 'Status', type: 'status', sortable: true }
     ]
     

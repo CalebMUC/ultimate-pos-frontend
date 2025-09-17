@@ -45,6 +45,10 @@ import SystemAudit from '../Views/Audit/SystemAudit.vue'
 import { UseAuthStore } from '../store/auth'
 
 import PurchaseOrders from '../Views/Purchases/PurchaseOrders.vue'
+import PurchaseOrderItems from '../Views/Purchases/PurchaseOrderItems.vue'
+
+import ExpenseCategory from '../Views/Finance/ExpenseCategory.vue'
+// import PurchaseInvoices from '../Views/Purchases/PurchaseInvoices.vue'
 
 // import SalesReport from '../Views/Reports/SalesReport.vue'
 // import LowStockReport from '../Views/Reports/LowStockReport.vue'
@@ -154,6 +158,21 @@ import PurchaseOrders from '../Views/Purchases/PurchaseOrders.vue'
     path: '/Purchases/PurchaseOrders',
     name: 'PurchaseOrders',
     component: PurchaseOrders,
+    //  meta: { requiresAuth: true }
+  },
+    {
+    path: '/Purchases/Purchases',
+    name: 'PurchaseOrderItems',
+    component: PurchaseOrderItems,
+    //  meta: { requiresAuth: true }
+  },
+
+  // Finance
+
+   {
+    path: '/Finance/ExpenseCategory',
+    name: 'ExpenseCategory',
+    component: ExpenseCategory,
     //  meta: { requiresAuth: true }
   },
 

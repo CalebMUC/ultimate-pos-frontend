@@ -709,8 +709,27 @@ return apiClient.delete(`/deleteinventory/${id}`, {
 },
 
 //____________________________________________
+// Purchases
+//**************************************************
+//____________________________________________
+
+getOrderItems(token) {
+  return apiClient.get('/Purchases/GetOrderItems',  {
+    headers: {
+      // Authorization: `Bearer ${token}`,
+    },
+  })
+  .then(response => {
+    return response.data;
+  });
+},
+
+
+
+//____________________________________________
 // NotificationS ENDPOINTS 
 //**************************************************
+//____________________________________________
  
 getcontacts(token) {
   return apiClient.get('/Notification/GetContacts',  {
