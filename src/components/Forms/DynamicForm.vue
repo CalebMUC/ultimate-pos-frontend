@@ -43,6 +43,16 @@
           class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
 
+        <input
+          v-else-if="field.type === 'date'"
+          v-model="formData[field.key]"
+          type="date"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          :min="field.minDate || ''"
+          :max="field.maxDate || ''"
+          :required="field.required || false"
+        />
+
 
         <!-- Select Input -->
         <select

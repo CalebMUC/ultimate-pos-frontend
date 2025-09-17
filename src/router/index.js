@@ -48,6 +48,7 @@ import PurchaseOrders from '../Views/Purchases/PurchaseOrders.vue'
 import PurchaseOrderItems from '../Views/Purchases/PurchaseOrderItems.vue'
 
 import ExpenseCategory from '../Views/Finance/ExpenseCategory.vue'
+import Expenses from '../Views/Finance/Expenses.vue'
 // import PurchaseInvoices from '../Views/Purchases/PurchaseInvoices.vue'
 
 // import SalesReport from '../Views/Reports/SalesReport.vue'
@@ -173,6 +174,12 @@ import ExpenseCategory from '../Views/Finance/ExpenseCategory.vue'
     path: '/Finance/ExpenseCategory',
     name: 'ExpenseCategory',
     component: ExpenseCategory,
+    //  meta: { requiresAuth: true }
+  },
+    {
+    path: '/Finance/Expenses',
+    name: 'Expenses',
+    component: Expenses,
     //  meta: { requiresAuth: true }
   },
 
