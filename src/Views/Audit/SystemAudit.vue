@@ -65,12 +65,19 @@ const modules = [
   { id: "sales", name: "Sales" },
 ];
 
-// 🔹 Filters
+// 🔹 Filters - Now using separate date filters
 const auditFilters = ref([
   {
-    label: "Date Range",
-    key: "dateRange",
-    type: "date-range",
+    label: "From Date",
+    key: "fromDate",
+    type: "date",
+    placeholder: "Select start date"
+  },
+  {
+    label: "To Date",
+    key: "toDate",
+    type: "date",
+    placeholder: "Select end date"
   },
   {
     label: "Modules",
@@ -106,6 +113,9 @@ const tableRows = computed(() =>
 // 🔹 Action handler
 function generateAuditLogs(filters) {
   console.log("Generating report with filters:", filters);
+  // You'll now receive fromDate and toDate as separate properties
+  // Example: {fromDate: "2023-08-01", toDate: "2023-08-31", modules: "all"}
+  
   // 🔜 Call backend API here later
 }
 </script>
