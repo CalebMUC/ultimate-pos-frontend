@@ -53,11 +53,16 @@ const auditFilters = ref([
 // 🔹 Table Columns
 const selectedColumns = [
   { key: "transactionId", label: "Transaction ID" },
-  { key: "customerName", label: "Customer" },
-  { key: "amount", label: "Amount" },
-  { key: "status", label: "Status" },
-  { key: "createdAt", label: "Date" },
+  { key: "invoiceNumber", label: "Invoice Number" },
+  { key: "totalAmount", label: "Total Amount" },
+  { key: "discount", label: "Discount" },
+  { key: "tax", label: "Tax" },
+  { key: "netAmount", label: "Net Amount" },
+  { key: "transactionDate", label: "Date" },
+  { key: "cashier", label: "Cashier" },
+  { key: "tillName", label: "Till" }
 ];
+;
 
 // 🔹 Computed Headers + Rows (same style as Audit Logs)
 const tableHeaders = computed(() => selectedColumns.map((col) => col.label));
