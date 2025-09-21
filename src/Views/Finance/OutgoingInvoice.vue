@@ -1,16 +1,16 @@
 <template>
   <ModuleComponent
-    title="Purchase Invoices"
-    description="Manage your Invoices"
-    moduleName="purchaseInvoices"
-    moduleNameSingular="purchaseInvoice"
-    :data="purchaseInvoices"
-    :columns="invoiceColumns"
-    :formFields="invoiceFormFields"
-    :fetchData="fetchInvoices"
-    :addItem="addInvoice"
-    :updateItem="updateInvoice"
-    :deleteItem="deleteInvoice"
+    title="Outgoing Invoices"
+    description="Create and manage invoices"
+    moduleName="outgoingInvoices"
+    moduleNameSingular="outgoingInvoice"
+    :data="outgoingInvoices"
+    :columns="outgoingInvoiceColumns"
+    :formFields="outgoingInvoiceFormFields"
+    :fetchData="fetchOutgoingInvoices"
+    :addItem="addOutgoingInvoice"
+    :updateItem="updateOutgoingInvoice"
+    :deleteItem="deleteOutgoingInvoice"
     searchPlaceholder="Search Invoice..."
     addButtonText="Add New Invoice"
     :showExportButtons="true"
@@ -27,14 +27,14 @@ import { ref, computed, onMounted } from "vue";
 import ModuleComponent from "../../components/ModuleComponent/ModuleComponent.vue";
 
 export default {
-  name: "PurchaseInvoicesPage",
+  name: "OutgoingInvoicesPage",
   components: { ModuleComponent },
   setup() {
     // Data
-    const purchaseInvoices = ref([]);
+    const outgoingInvoices = ref([]);
 
     // Table columns
-    const invoiceColumns = computed(() => [
+    const outgoingInvoiceColumns = computed(() => [
       { field: "invoiceNo", label: "Invoice No", type: "text", sortable: true },
       { field: "invoiceDate", label: "Invoice Date", type: "date", sortable: true },
       { field: "supplier", label: "Supplier", type: "text", sortable: true },
@@ -46,14 +46,13 @@ export default {
     ]);
 
     // Form fields
-    const invoiceFormFields = computed(() => [
-      { key: "invoiceNo", label: "Invoice No", type: "text", required: true, placeholder: "Enter Invoice Number" },
+    const outgoingInvoiceFormFields = computed(() => [
       { key: "invoiceDate", label: "Invoice Date", type: "date", required: true },
-      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] }, // TODO: fetch suppliers
+      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] }, // fetch suppliers later
       { key: "refNo", label: "Reference No", type: "text", placeholder: "Optional reference" },
       { key: "totalAmount", label: "Total Amount", type: "number", required: true, min: 0 },
       { key: "taxAmount", label: "Tax Amount", type: "number", required: true, min: 0 },
-      { key: "notes", label: "Notes", type: "textarea", placeholder: "Enter notes (optional)" },
+      { key: "notes", label: "Notes", type: "textarea", placeholder: "Enter notes..." },
       { key: "status", label: "Status", type: "select", required: true, options: ["Pending", "Paid", "Overdue"] }
     ]);
 
@@ -61,11 +60,8 @@ export default {
     const getInvoiceId = (invoice) => invoice.invoiceId;
 
     // CRUD actions (replace with real API calls)
-    const fetchInvoices = async () => {
-      // Example API call
-      // const res = await fetch("/api/purchaseInvoices");
-      // purchaseInvoices.value = await res.json();
-      purchaseInvoices.value = [
+    const fetchOutgoingInvoices = async () => {
+      outgoingInvoices.value = [
         {
           invoiceId: "1",
           invoiceNo: "INV-1001",
@@ -80,28 +76,28 @@ export default {
       ];
     };
 
-    const addInvoice = async (invoice) => {
+    const addOutgoingInvoice = async (invoice) => {
       console.log("Adding invoice", invoice);
     };
 
-    const updateInvoice = async (invoice) => {
+    const updateOutgoingInvoice = async (invoice) => {
       console.log("Updating invoice", invoice);
     };
 
-    const deleteInvoice = async (id) => {
+    const deleteOutgoingInvoice = async (id) => {
       console.log("Deleting invoice", id);
     };
 
-    onMounted(fetchInvoices);
+    onMounted(fetchOutgoingInvoices);
 
     return {
-      purchaseInvoices,
-      invoiceColumns,
-      invoiceFormFields,
-      fetchInvoices,
-      addInvoice,
-      updateInvoice,
-      deleteInvoice,
+      outgoingInvoices,
+      outgoingInvoiceColumns,
+      outgoingInvoiceFormFields,
+      fetchOutgoingInvoices,
+      addOutgoingInvoice,
+      updateOutgoingInvoice,
+      deleteOutgoingInvoice,
       getInvoiceId
     };
   }

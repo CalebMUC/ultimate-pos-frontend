@@ -18,6 +18,7 @@
     :getId="getProductId"
     modal-size="full"
     form-columns="2"
+    :products="false"
   >
     <!-- Custom Filters for Products -->
     <template #filters>

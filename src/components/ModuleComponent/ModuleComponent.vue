@@ -292,6 +292,7 @@
           @update:formData="formData = $event"
           @validate="errors = $event"
           :columns="formColumns"
+          :products = true
         />
       <!-- </template> -->
 
@@ -373,7 +374,11 @@ export default {
     // New prop to explicitly indicate if this is a purchase form
     isPurchase: { type: Boolean, default: false },
     modalSize: { type: String, default: "md" },
-    formColumns: { type: Number, default: 1 }
+    formColumns: { type: Number, default: 1 },
+       products: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   components: { ReusableModal, DynamicForm, PurchaseForm },

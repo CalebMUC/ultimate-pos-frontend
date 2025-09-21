@@ -503,6 +503,16 @@
                 <TagIcon class="h-4 w-4 mr-3" />
                 Income Sources
               </router-link>
+
+              <router-link 
+                
+                to="/Finance/OutgoingInvoice"
+                class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                active-class="bg-slate-600 text-white"
+              >
+                <TagIcon class="h-4 w-4 mr-3" />
+                Outgoing Invoice
+              </router-link>
             </div>
           </transition>
         </div>
@@ -557,7 +567,7 @@
               </router-link>
 
               <router-link 
-                to="/Purchases/Invoices"
+                to="/Purchases/PurchaseInvoices"
                 class="flex items-center px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
                 active-class="bg-slate-600 text-white"
               >
