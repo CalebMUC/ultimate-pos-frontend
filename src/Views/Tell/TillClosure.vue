@@ -132,27 +132,15 @@
 
 <script>
 import { ref, computed, onMounted } from "vue";
+import { useTillManagementStore } from "../../store/TillManagementStore";
+import { storeToRefs } from "pinia";
+import Swal from "sweetalert2";
 
 export default {
   name: "TillClosure",
   setup() {
-    // Dummy tills
-    const tills = ref([
-      {
-        id: 1,
-        name: "Till 1",
-        expectedCash: 5000,
-        expectedCard: 3000,
-        expectedMobile: 2000,
-      },
-      {
-        id: 2,
-        name: "Till 2",
-        expectedCash: 4000,
-        expectedCard: 2500,
-        expectedMobile: 1500,
-      },
-    ]);
+    const tillStore = useTillManagementStore()
+    const { tills } = storeToRefs(tillStore)
 
     const selectedTill = ref("");
     const actuals = ref({ cash: 0, card: 0, mobile: 0 });
@@ -180,15 +168,15 @@ export default {
     ];
 
     const selectedTillDetails = computed(() =>
-      tills.value.find((t) => t.id === selectedTill.value)
+      tills.value.find((t) => t.tillId === selectedTill.value || t.id === selectedTill.value)
     );
 
     const variances = computed(() => {
       if (!selectedTillDetails.value) return { cash: 0, card: 0, mobile: 0 };
       return {
-        cash: actuals.value.cash - selectedTillDetails.value.expectedCash,
-        card: actuals.value.card - selectedTillDetails.value.expectedCard,
-        mobile: actuals.value.mobile - selectedTillDetails.value.expectedMobile,
+        cash: actuals.value.cash - (selectedTillDetails.value.expectedCash || 0),
+        card: actuals.value.card - (selectedTillDetails.value.expectedCard || 0),
+        mobile: actuals.value.mobile - (selectedTillDetails.value.expectedMobile || 0),
       };
     });
 
@@ -198,6 +186,81 @@ export default {
 
     const isFormValid = computed(() => {
       return selectedTill.value !== "" && 
+             Object.values(actuals.value).every(val => val !== null && val !== undefined && val >= 0);
+    });
+
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(amount || 0);
+    };
+
+    const getVarianceClass = (variance) => {
+      if (variance === 0) return "text-green-800 bg-green-100";
+      if (variance > 0) return "text-blue-800 bg-blue-100";
+      return "text-red-800 bg-red-100";
+    };
+
+    const getVarianceBarClass = (variance) => {
+      if (variance === 0) return "bg-green-500";
+      if (variance > 0) return "bg-blue-500";
+      return "bg-red-500";
+    };
+
+    const highlightInput = (field) => { highlightedInput.value = field; };
+    const unhighlightInput = () => { highlightedInput.value = null; };
+
+    const submitClosure = async () => {
+      if (!selectedTillDetails.value) return;
+      try {
+        await tillStore.SubmitClosure({
+          tillId: selectedTill.value,
+          cashActual: actuals.value.cash,
+          cardActual: actuals.value.card,
+          mobileActual: actuals.value.mobile,
+          cashVariance: variances.value.cash,
+          cardVariance: variances.value.card,
+          mobileVariance: variances.value.mobile,
+          totalVariance: totalVariance.value,
+        })
+        Swal.fire({
+          icon: 'success',
+          title: 'Submitted',
+          text: 'Till closure submitted for supervisor review.',
+          timer: 3000,
+          showConfirmButton: false
+        })
+        selectedTill.value = "";
+        actuals.value = { cash: 0, card: 0, mobile: 0 };
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Submission Failed', text: err?.message || 'Please try again.' })
+      }
+    };
+
+    onMounted(() => tillStore.GetTills && tillStore.fetchTills ? tillStore.fetchTills() : null)
+
+    return {
+      tills,
+      selectedTill,
+      actuals,
+      paymentMethods,
+      selectedTillDetails,
+      variances,
+      totalVariance,
+      isFormValid,
+      highlightedInput,
+      formatCurrency,
+      getVarianceClass,
+      getVarianceBarClass,
+      highlightInput,
+      unhighlightInput,
+      submitClosure,
+    };
+  },
+};
+</script>
              Object.values(actuals.value).every(val => val !== null && val !== undefined && val >= 0);
     });
 
@@ -224,51 +287,6 @@ export default {
     const highlightInput = (field) => {
       highlightedInput.value = field;
     };
-
-    const unhighlightInput = () => {
-      highlightedInput.value = null;
-    };
-
-    const submitClosure = () => {
-      if (!selectedTillDetails.value) {
-        alert("Please select a till first!");
-        return;
-      }
-      
-      console.log("Submitting Till Closure:", {
-        till: selectedTillDetails.value,
-        actuals: actuals.value,
-        variances: variances.value,
-        status: "Pending Supervisor Review",
-      });
-      
-      alert("Till closure submitted for supervisor review.");
-      
-      // Reset form
-      selectedTill.value = "";
-      actuals.value = { cash: 0, card: 0, mobile: 0 };
-    };
-
-    return {
-      tills,
-      selectedTill,
-      actuals,
-      paymentMethods,
-      selectedTillDetails,
-      variances,
-      totalVariance,
-      isFormValid,
-      highlightedInput,
-      formatCurrency,
-      getVarianceClass,
-      getVarianceBarClass,
-      highlightInput,
-      unhighlightInput,
-      submitClosure,
-    };
-  },
-};
-</script>
 
 <style scoped>
 /* Custom styles for number input arrows */

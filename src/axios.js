@@ -1,14 +1,8 @@
 import axios from 'axios';
 import { errorState } from '../src/store/ErrorState'
-import {useRouter } from 'vue-router'
-import Documents from './Views/Documents.vue';
+import router from './router'
 
-
-const router = useRouter(); 
-
-let dynamicBaseURL = 'https://localhost:7231/api/' 
-
-let token = localStorage.getItem('token');
+const dynamicBaseURL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7231/api/'
 
 const apiClient = axios.create({
   baseURL: dynamicBaseURL, //'http://localhost:5134/api/',
@@ -17,6 +11,19 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// ─── Auth Request Interceptor ────────────────────────────────────────────────
+// Automatically attaches Bearer token from localStorage to every outgoing request
+apiClient.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  error => Promise.reject(error)
+)
 
 apiClient.interceptors.response.use(
   response => response,
@@ -37,7 +44,6 @@ apiClient.interceptors.response.use(
 
 
 function setBaseURL(url) {
-  dynamicBaseURL = url
   apiClient.defaults.baseURL = url 
 }
 
@@ -824,16 +830,8 @@ AddNotification(postData,token) {
 // Documents
 //###############################
 
-async uploadFile(formData, token) {
-  return axios.post(
-    'http://localhost:5134/api/Document/AddDocument',
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    }
-  );
+async uploadFile(formData) {
+  return apiClient.post('/Document/AddDocument', formData)
 },
 
   // async uploadFile(formData,token) {
@@ -1134,6 +1132,54 @@ getPersonalDet(token) {
   .then(response => {
     return response.data;
   });
+},
+
+//-------------------------------------------------
+//  PURCHASE INVOICES ENDPOINTS
+//-------------------------------------------------
+getPurchaseInvoices() {
+  return apiClient.get('/PurchaseInvoices/GetPurchaseInvoices')
+    .then(response => response)
+},
+addPurchaseInvoice(postData) {
+  return apiClient.post('/PurchaseInvoices/AddPurchaseInvoice', postData)
+    .then(response => response)
+},
+updatePurchaseInvoice(postData) {
+  return apiClient.post('/PurchaseInvoices/EditPurchaseInvoice', postData)
+    .then(response => response)
+},
+deletePurchaseInvoice(id) {
+  return apiClient.delete(`/PurchaseInvoices/DeletePurchaseInvoice/${id}`)
+    .then(response => response)
+},
+
+//-------------------------------------------------
+//  OUTGOING INVOICES ENDPOINTS
+//-------------------------------------------------
+getOutgoingInvoices() {
+  return apiClient.get('/OutgoingInvoices/GetOutgoingInvoices')
+    .then(response => response)
+},
+addOutgoingInvoice(postData) {
+  return apiClient.post('/OutgoingInvoices/AddOutgoingInvoice', postData)
+    .then(response => response)
+},
+updateOutgoingInvoice(postData) {
+  return apiClient.post('/OutgoingInvoices/EditOutgoingInvoice', postData)
+    .then(response => response)
+},
+deleteOutgoingInvoice(id) {
+  return apiClient.delete(`/OutgoingInvoices/DeleteOutgoingInvoice/${id}`)
+    .then(response => response)
+},
+
+//-------------------------------------------------
+//  SYSTEM AUDIT ENDPOINTS
+//-------------------------------------------------
+getAuditLogs(postData) {
+  return apiClient.post('/Audit/GetAuditLogs', postData)
+    .then(response => response)
 },
 
 };

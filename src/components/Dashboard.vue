@@ -1,13 +1,24 @@
 <template>
-  <div class="h-screen w-screen flex flex-col overflow-y-auto">
-     <Navbar class="h-16" />
+  <!-- Outer shell: full viewport height, no overflow (browser scrolls natively) -->
+  <div class="min-h-screen flex flex-col bg-gray-100">
+
+    <!-- Sticky Navbar — always on top -->
+    <Navbar />
+
+    <!-- Body row: sidebar (fixed) + scrollable main -->
     <div class="flex flex-1">
-       
-      <Sidebar v-if="filterLargeScreen" class="h-full  bg-gray-800 text-white " />
 
-     <Mobile_sidebar v-if="filterSmallScreen" class="fixed top-0 left-0 z-50 w-64 h-auto max-h-screen bg-gray-800 text-white shadow-lg" />
+      <!-- Desktop fixed sidebar (manages its own v-if internally) -->
+      <Sidebar />
 
-     <main class="flex-1 bg-gray-100  overflow-y-auto">
+      <!-- Mobile overlay drawer (renders via <teleport> to body, manages its own v-if) -->
+      <Mobile_sidebar />
+
+      <!-- Main content — offset by sidebar width when visible -->
+      <main
+        class="flex-1 overflow-y-auto transition-[margin-left] duration-300 ease-in-out"
+        :class="filterLargeScreen ? (dashboardstore.sidebarCollapsed ? 'ml-16' : 'ml-64') : 'ml-0'"
+      >
         <RouterView />
       </main>
     </div>
@@ -17,13 +28,14 @@
 
 
 <script>
-import { computed, watch } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 import Swal from 'sweetalert2';
 import Navbar from '../components/Navbar.vue';
 import Sidebar from '../components/Sidebar.vue'; 
 import Mobile_sidebar from '../components/Mobile_sidebar.vue';
 import { useDashboardStore } from '../store/DashboardStore';
+import { errorState } from '../store/ErrorState';
 
 export default {
   name: 'Dashboard',
@@ -34,21 +46,35 @@ export default {
   },
   setup() { 
 
-
   const dashboardstore = useDashboardStore();
 
     const filterSmallScreen = computed(() => dashboardstore.filterSmallScreen)
     const filterLargeScreen = computed(() => dashboardstore.filterLargeScreen) 
 
-    watch(filterLargeScreen, (newVal, oldVal) => {
-      if (newVal) {
-        console.log(newVal, "felo") 
-
+    // ── Global error boundary ─────────────────────────────────────────────
+    // Watches the shared errorState reactive object and shows a toast when any
+    // API call fails, so individual views don't need their own error handling.
+    watch(() => errorState.message, (msg) => {
+      if (msg) {
+        Swal.fire({
+          icon: errorState.code === 401 ? 'warning' : 'error',
+          title: errorState.code === 401
+            ? 'Session Expired'
+            : `Error ${errorState.code || ''}`.trim(),
+          text: msg,
+          timer: 4000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        })
+        // Clear after displaying
+        errorState.message = ''
+        errorState.code = null
       }
-    });
+    })
 
    return {
-    
         dashboardstore,
         filterSmallScreen,
         filterLargeScreen,

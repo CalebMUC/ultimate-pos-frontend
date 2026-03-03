@@ -1,60 +1,59 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../Views/Home.vue'
-import  Inventory from '../Views/Inventory.vue'
-import Transactions from '../Views/Transactions.vue'
-import Catalogue from '../Views/Catalogue.vue'
-import Supplier from '../Views/Supplier.vue'
-import Account from "../Views/Account.vue";
-import Supplies from '../Views/Supplies.vue'
-
-// import sale from '../Views/Sale.vue'
-import sale2 from '../Views/sale2.vue'
-import Login from  '../components/Login.vue'
-import Register from  '../components/Register.vue'
-import Dashboard from '../components/Dashboard.vue'
-import categories from '../Views/Categories.vue'
-import Reports from "../Views/Reports.vue"
-import Contacts from '../Views/Contacts.vue'
-import SendSms from '../Views/SendSms.vue'
-import SentMessages from '../Views/SentMessages.vue'
-import Documents from '../Views/Documents.vue'
-
-//Reports Module and SubModules
-import SalesReport from '../Views/Reports/SalesReport.vue'
-import PurchasesReport from '../Views/Reports/PurchasesReport.vue'
-import LowStockReport  from '../Views/Reports/LowStockReport.vue'
-import ExpenseReport from '../Views/Reports/ExpenseReport.vue'
-
-//account views
-import PersonalInfor from '../Views/Account_Views/Personal_info.vue';
-import BusinessInfor from '../Views/Account_Views/Business_info.vue';
-import Permissions from '../Views/Account_Views/Permission.vue';
-import Roles from '../Views/Account_Views/Roles.vue';
-import Teller from '../Views/Account_Views/Teller.vue';
-import UserList from '../Views/Account_Views/UserList.vue';
-import UserLogs from '../Views/Account_Views/UserLogs.vue';
-
-import RolePermissions from '../Views/Roles/RolePermissions.vue'
-import UserMaintainance from '../Views/Users/UserMaintainance.vue'
-import TillManagement from '../Views/Tell/TillManagement.vue'
-import CashierManagement from '../Views/Tell/CashierManagement.vue'
-import TillClosure from '../Views/Tell/TillClosure.vue'
-import SupervisorTillReview from '../Views/Tell/SupervisorTillReview.vue'
-import SystemAudit from '../Views/Audit/SystemAudit.vue'
-
 import { UseAuthStore } from '../store/auth'
 
-import PurchaseOrders from '../Views/Purchases/PurchaseOrders.vue'
-import PurchaseOrderItems from '../Views/Purchases/PurchaseOrderItems.vue'
+// ── Lazy-loaded routes ───────────────────────────────────────────────────────
+// All components are loaded on-demand to reduce initial bundle size
+const Home             = () => import('../Views/Home.vue')
+const Inventory        = () => import('../Views/Inventory.vue')
+const Transactions     = () => import('../Views/Transactions.vue')
+const Catalogue        = () => import('../Views/Catalogue.vue')
+const Supplier         = () => import('../Views/Supplier.vue')
+const Account          = () => import('../Views/Account.vue')
+const Supplies         = () => import('../Views/Supplies.vue')
+const sale2            = () => import('../Views/sale2.vue')
+const Login            = () => import('../components/Login.vue')
+const Register         = () => import('../components/Register.vue')
+const Dashboard        = () => import('../components/Dashboard.vue')
+const categories       = () => import('../Views/Categories.vue')
+const Reports          = () => import('../Views/Reports.vue')
+const Contacts         = () => import('../Views/Contacts.vue')
+const SendSms          = () => import('../Views/SendSms.vue')
+const SentMessages     = () => import('../Views/SentMessages.vue')
+const Documents        = () => import('../Views/Documents.vue')
 
-import ExpenseCategory from '../Views/Finance/ExpenseCategory.vue'
-import Expenses from '../Views/Finance/Expenses.vue'
-import PurchaseInvoices from '../Views/Purchases/PurchaseInvoices.vue'
-import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
-// import PurchaseInvoices from '../Views/Purchases/PurchaseInvoices.vue'
+// Reports submodules
+const SalesReport      = () => import('../Views/Reports/SalesReport.vue')
+const PurchasesReport  = () => import('../Views/Reports/PurchasesReport.vue')
+const LowStockReport   = () => import('../Views/Reports/LowStockReport.vue')
+const ExpenseReport    = () => import('../Views/Reports/ExpenseReport.vue')
 
-// import SalesReport from '../Views/Reports/SalesReport.vue'
-// import LowStockReport from '../Views/Reports/LowStockReport.vue'
+// Account subviews
+const PersonalInfor    = () => import('../Views/Account_Views/Personal_info.vue')
+const BusinessInfor    = () => import('../Views/Account_Views/Business_info.vue')
+const Permissions      = () => import('../Views/Account_Views/Permission.vue')
+const Roles            = () => import('../Views/Account_Views/Roles.vue')
+const Teller           = () => import('../Views/Account_Views/Teller.vue')
+const UserList         = () => import('../Views/Account_Views/UserList.vue')
+const UserLogs         = () => import('../Views/Account_Views/UserLogs.vue')
+
+// Roles / Users / Till / Audit
+const RolePermissions        = () => import('../Views/Roles/RolePermissions.vue')
+const UserMaintainance       = () => import('../Views/Users/UserMaintainance.vue')
+const TillManagement         = () => import('../Views/Tell/TillManagement.vue')
+const CashierManagement      = () => import('../Views/Tell/CashierManagement.vue')
+const TillClosure            = () => import('../Views/Tell/TillClosure.vue')
+const SupervisorTillReview   = () => import('../Views/Tell/SupervisorTillReview.vue')
+const SystemAudit            = () => import('../Views/Audit/SystemAudit.vue')
+
+// Purchases
+const PurchaseOrders         = () => import('../Views/Purchases/PurchaseOrders.vue')
+const PurchaseOrderItems     = () => import('../Views/Purchases/PurchaseOrderItems.vue')
+const PurchaseInvoices       = () => import('../Views/Purchases/PurchaseInvoices.vue')
+
+// Finance
+const ExpenseCategory        = () => import('../Views/Finance/ExpenseCategory.vue')
+const Expenses               = () => import('../Views/Finance/Expenses.vue')
+const OutgoingInvoice        = () => import('../Views/Finance/OutgoingInvoice.vue')
 
 
 
@@ -112,48 +111,48 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
     path: '/Audit/SystemAudit',
     name: 'SystemAudit',
     component: SystemAudit,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
   {
     path: '/Till/SupervisorTillReview',
     name: 'SupervisorTillReview',
     component: SupervisorTillReview,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
    {
     path: '/Till/CashierManagement',
     name: 'CashierManagement',
     component: CashierManagement,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/Till/TillClosure',
     name: 'TillClosure',
     component: TillClosure,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
    {
     path: '/Till/TillManagement',
     name: 'TillManagement',
     component: TillManagement,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   
    {
     path: '/Users/UserMaintainance',
     name: 'UserMaintainance',
     component: UserMaintainance,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
    {
     path: '/Roles/RolePermissions',
     name: 'RolePermisions',
     component: RolePermissions,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
   //purchases
@@ -161,19 +160,19 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
     path: '/Purchases/PurchaseOrders',
     name: 'PurchaseOrders',
     component: PurchaseOrders,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/Purchases/PurchaseInvoices',
     name: 'PurchaseInvoices',
     component: PurchaseInvoices,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
     {
     path: '/Purchases/Purchases',
     name: 'PurchaseOrderItems',
     component: PurchaseOrderItems,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
   // Finance
@@ -182,19 +181,19 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
     path: '/Finance/ExpenseCategory',
     name: 'ExpenseCategory',
     component: ExpenseCategory,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
     {
     path: '/Finance/Expenses',
     name: 'Expenses',
     component: Expenses,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/Finance/OutgoingInvoice',
     name: 'OutgoingInvoice',
     component: OutgoingInvoice,
-    //  meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
 
   //Reports
@@ -211,7 +210,7 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
     path: '/Reports/Purchases',
     name: 'PurchasesReport',
     component: PurchasesReport,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/Reports/LowStockReport',
@@ -223,7 +222,7 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
     path: '/Reports/ExpenseReport',
     name: 'ExpenseReport',
     component: ExpenseReport,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true }
   },
    
 
@@ -363,6 +362,10 @@ import OutgoingInvoice from '../Views/Finance/OutgoingInvoice.vue'
 ]}
 
 ]  ///
+
+// 404 fallback — must be last
+const notFoundRoute = { path: '/:pathMatch(.*)*', name: 'NotFound', redirect: '/home' }
+routes.push(notFoundRoute)
 
 const router = createRouter({
   history: createWebHistory(),

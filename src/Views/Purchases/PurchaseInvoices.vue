@@ -23,15 +23,17 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import ModuleComponent from "../../components/ModuleComponent/ModuleComponent.vue";
+import { usePurchaseInvoiceStore } from "../../store/PurchaseInvoiceStore";
+import { storeToRefs } from "pinia";
 
 export default {
   name: "PurchaseInvoicesPage",
   components: { ModuleComponent },
   setup() {
-    // Data
-    const purchaseInvoices = ref([]);
+    const store = usePurchaseInvoiceStore()
+    const { invoices: purchaseInvoices } = storeToRefs(store)
 
     // Table columns
     const invoiceColumns = computed(() => [
@@ -48,51 +50,28 @@ export default {
     // Form fields
     const invoiceFormFields = computed(() => [
       { key: "invoiceNo", label: "Invoice No", type: "text", required: true, placeholder: "Enter Invoice Number" },
+      { key: "purchaseOrderId", label: "Purchase Order", type: "select", required: true, options: [] },
       { key: "invoiceDate", label: "Invoice Date", type: "date", required: true },
-      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] }, // TODO: fetch suppliers
+      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] },
       { key: "refNo", label: "Reference No", type: "text", placeholder: "Optional reference" },
       { key: "totalAmount", label: "Total Amount", type: "number", required: true, min: 0 },
       { key: "taxAmount", label: "Tax Amount", type: "number", required: true, min: 0 },
+      { key: "status", label: "Status", type: "select", required: true, options: [
+        { value: "Pending", label: "Pending" },
+        { value: "Paid", label: "Paid" },
+        { value: "Overdue", label: "Overdue" }
+      ]},
       { key: "notes", label: "Notes", type: "textarea", placeholder: "Enter notes (optional)" },
-      { key: "status", label: "Status", type: "select", required: true, options: ["Pending", "Paid", "Overdue"] }
     ]);
 
-    // Get ID function
-    const getInvoiceId = (invoice) => invoice.invoiceId;
+    const getInvoiceId = (invoice) => invoice.invoiceId
 
-    // CRUD actions (replace with real API calls)
-    const fetchInvoices = async () => {
-      // Example API call
-      // const res = await fetch("/api/purchaseInvoices");
-      // purchaseInvoices.value = await res.json();
-      purchaseInvoices.value = [
-        {
-          invoiceId: "1",
-          invoiceNo: "INV-1001",
-          invoiceDate: "2025-09-01",
-          supplier: "ABC Supplies",
-          refNo: "PO-555",
-          totalAmount: 2500,
-          status: "Pending",
-          createdOn: "2025-09-05",
-          createdBy: "Admin"
-        }
-      ];
-    };
+    const fetchInvoices = () => store.fetchInvoices()
+    const addInvoice    = (data) => store.addInvoice(data)
+    const updateInvoice = (id, data) => store.updateInvoice(id, data)
+    const deleteInvoice = (id) => store.deleteInvoice(id)
 
-    const addInvoice = async (invoice) => {
-      console.log("Adding invoice", invoice);
-    };
-
-    const updateInvoice = async (invoice) => {
-      console.log("Updating invoice", invoice);
-    };
-
-    const deleteInvoice = async (id) => {
-      console.log("Deleting invoice", id);
-    };
-
-    onMounted(fetchInvoices);
+    onMounted(fetchInvoices)
 
     return {
       purchaseInvoices,

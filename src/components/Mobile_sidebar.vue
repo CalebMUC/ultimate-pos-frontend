@@ -1,104 +1,243 @@
 <template>
-  <div v-if="showMobileSidebar">
+  <teleport to="body">
     <!-- Backdrop overlay -->
-    <!-- <div  class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="closeSidebar"></div> -->
+    <transition
+      enter-active-class="transition-opacity ease-out duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity ease-in duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showMobileSidebar"
+        class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+        @click="closeSidebar"
+      />
+    </transition>
 
-    <!-- Floating sidebar -->
-    <div class="fixed top-0 left-0 z-50 w-64 h-auto max-h-screen bg-slate-800 text-white px-6 py-2 mt-16" >
-      <!-- Cancel Icon -->
-      <button @click="closeSidebar" class="absolute top-1 right-1 text-white hover:text-gray-300">
-        <i class="fas fa-times text-xl"></i>
-      </button>
+    <!-- Slide-in Drawer -->
+    <transition
+      enter-active-class="transition-transform ease-out duration-300"
+      enter-from-class="-translate-x-full"
+      enter-to-class="translate-x-0"
+      leave-active-class="transition-transform ease-in duration-200"
+      leave-from-class="translate-x-0"
+      leave-to-class="-translate-x-full"
+    >
+      <div
+        v-if="showMobileSidebar"
+        class="fixed top-0 left-0 z-50 flex h-full w-72 flex-col bg-slate-800 shadow-2xl"
+      >
+        <!-- Drawer Header -->
+        <div class="flex h-16 items-center justify-between border-b border-slate-700 px-4 flex-shrink-0">
+          <span class="text-sm font-bold text-white tracking-widest uppercase">
+            {{ appName }}
+          </span>
+          <button
+            @click="closeSidebar"
+            class="rounded-lg p-1.5 text-gray-400 hover:bg-slate-700 hover:text-white transition-colors"
+          >
+            <XMarkIcon class="h-5 w-5" />
+          </button>
+        </div>
 
-      <ul class="space-y-3 mt-8">
-        <li>
-          <router-link to="/" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-home mr-3"></i> Dashboard
+        <!-- Nav Items -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1 sidebar-scroll">
+
+          <router-link
+            to="/"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <HomeIcon class="h-5 w-5 flex-shrink-0" />
+            Dashboard
           </router-link>
-        </li>
-        <li>
-          <router-link to="/inventory" @click.native="closeSidebar"  class="flex items-center text-white hover:text-gray-300">
-            <i class="fas fa-box-open mr-3"></i> Inventory
+
+          <router-link
+            to="/inventory"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <ArchiveBoxIcon class="h-5 w-5 flex-shrink-0" />
+            Inventory
           </router-link>
-        </li>
-        <li>
-          <router-link to="/catalogue" @click.native="closeSidebar"  class="flex items-center text-white hover:text-gray-300">
-            <i class="fas fa-box mr-3"></i> Catalogue
+
+          <router-link
+            to="/catalogue"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <CubeIcon class="h-5 w-5 flex-shrink-0" />
+            Catalogue
           </router-link>
-        </li>
-        <li>
-          <router-link to="/categories" @click.native="closeSidebar"  class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-tags mr-3"></i> Categories
+
+          <router-link
+            to="/categories"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <TagIcon class="h-5 w-5 flex-shrink-0" />
+            Categories
           </router-link>
-        </li>
-        <li>
-          <router-link to="/sell" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i class="fas fa-paper-plane mr-3"></i> Sell
+
+          <!-- Divider -->
+          <div class="my-2 border-t border-slate-700/60"></div>
+
+          <router-link
+            to="/sell"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <ShoppingBagIcon class="h-5 w-5 flex-shrink-0" />
+            Sell
           </router-link>
-        </li>
-        <li>
-          <router-link to="/transactions" @click.native="closeSidebar" lass="flex items-center text-white hover:text-gray-300">
-            <i class="fas fa-receipt mr-3"></i> Transactions
+
+          <router-link
+            to="/transactions"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <BanknotesIcon class="h-5 w-5 flex-shrink-0" />
+            Transactions
           </router-link>
-        </li>
-        <li>
-          <router-link to="/documents" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-file-alt mr-3"></i> Documents
+
+          <router-link
+            to="/documents"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <DocumentTextIcon class="h-5 w-5 flex-shrink-0" />
+            Documents
           </router-link>
-        </li>
-        <li>
-          <router-link to="/contacts" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-address-book mr-3"></i> Contacts
+
+          <!-- Divider -->
+          <div class="my-2 border-t border-slate-700/60"></div>
+
+          <router-link
+            to="/contacts"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <UsersIcon class="h-5 w-5 flex-shrink-0" />
+            Contacts
           </router-link>
-        </li>
-        <li>
-          <router-link to="/SendSms" @click.native="closeSidebar"  class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-comment-alt mr-3"></i> Send SMS
+
+          <router-link
+            to="/SendSms"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <ChatBubbleLeftIcon class="h-5 w-5 flex-shrink-0" />
+            Send SMS
           </router-link>
-        </li>
-        <li>
-          <router-link to="/SentMessages"  @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300 " >
-            <i   class="fas fa-paper-plane mr-3"></i> Sent Messages
+
+          <router-link
+            to="/SentMessages"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <PaperAirplaneIcon class="h-5 w-5 flex-shrink-0" />
+            Sent Messages
           </router-link>
-        </li>
-        <li>
-          <router-link to="/reports" @click.native="closeSidebar"  class="flex items-center text-white hover:text-gray-300">
-            <i class="fas fa-chart-line mr-3"></i> Reports
+
+          <!-- Divider -->
+          <div class="my-2 border-t border-slate-700/60"></div>
+
+          <router-link
+            to="/reports"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <ChartBarIcon class="h-5 w-5 flex-shrink-0" />
+            Reports
           </router-link>
-        </li>
-        <li>
-          <router-link to="/Supplier" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-truck mr-3"></i> Suppliers
+
+          <router-link
+            to="/Supplier"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <TruckIcon class="h-5 w-5 flex-shrink-0" />
+            Suppliers
           </router-link>
-        </li>
-        <li>
-          <router-link to="/account" @click.native="closeSidebar" class="flex items-center text-white hover:text-gray-300">
-            <i  class="fas fa-address-book mr-3"></i> My Account
+
+          <router-link
+            to="/account"
+            @click="closeSidebar"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+            active-class="bg-slate-700 text-white"
+          >
+            <UserCircleIcon class="h-5 w-5 flex-shrink-0" />
+            My Account
           </router-link>
-        </li>
-      </ul>
-    </div>
-  </div>
+        </nav>
+
+        <!-- Drawer Footer -->
+        <div class="border-t border-slate-700 p-3 flex-shrink-0">
+          <p class="text-center text-[10px] text-slate-500 uppercase tracking-widest">
+            {{ appName }} &copy; {{ new Date().getFullYear() }}
+          </p>
+        </div>
+      </div>
+    </transition>
+  </teleport>
 </template>
 
+<script setup>
+import { computed } from 'vue'
+import { useDashboardStore } from '../store/DashboardStore'
+import {
+  HomeIcon,
+  ArchiveBoxIcon,
+  CubeIcon,
+  TagIcon,
+  ShoppingBagIcon,
+  BanknotesIcon,
+  DocumentTextIcon,
+  UsersIcon,
+  ChatBubbleLeftIcon,
+  PaperAirplaneIcon,
+  ChartBarIcon,
+  TruckIcon,
+  UserCircleIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/outline'
 
+const dashboardstore = useDashboardStore()
+const showMobileSidebar = computed(() => dashboardstore.filterSmallScreen)
+const appName = import.meta.env.VITE_APP_NAME || 'Ultimate POS'
 
-  <script setup>
-   import { useDashboardStore } from '../store/DashboardStore';
-   import { ref,computed,onMounted } from 'vue';
- 
-      const dashboardstore = useDashboardStore();
-      const showMobileSidebar = computed(() => dashboardstore.filterSmallScreen );
+const closeSidebar = () => {
+  dashboardstore.toggleResponsiveSidebar()
+}
+</script>
 
-
-      const closeSidebar = ()=> {
-        dashboardstore.toggleResponsiveSidebar();
-      }
-
-     
-   </script>
-   
-   <style scoped>
-   /* Add additional styles if necessary */
-   @import 'node_modules/@fortawesome/fontawesome-free/css/all.css';
-   </style>
+<style scoped>
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 #1e293b;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+}
+</style>

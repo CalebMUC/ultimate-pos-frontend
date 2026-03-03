@@ -23,15 +23,17 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import ModuleComponent from "../../components/ModuleComponent/ModuleComponent.vue";
+import { useOutgoingInvoiceStore } from "../../store/OutgoingInvoiceStore";
+import { storeToRefs } from "pinia";
 
 export default {
   name: "OutgoingInvoicesPage",
   components: { ModuleComponent },
   setup() {
-    // Data
-    const outgoingInvoices = ref([]);
+    const store = useOutgoingInvoiceStore()
+    const { invoices: outgoingInvoices } = storeToRefs(store)
 
     // Table columns
     const outgoingInvoiceColumns = computed(() => [
@@ -47,48 +49,28 @@ export default {
 
     // Form fields
     const outgoingInvoiceFormFields = computed(() => [
+      { key: "invoiceNo", label: "Invoice No", type: "text", required: true, placeholder: "Enter Invoice Number" },
       { key: "invoiceDate", label: "Invoice Date", type: "date", required: true },
-      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] }, // fetch suppliers later
+      { key: "supplierId", label: "Supplier", type: "select", required: true, options: [] },
       { key: "refNo", label: "Reference No", type: "text", placeholder: "Optional reference" },
       { key: "totalAmount", label: "Total Amount", type: "number", required: true, min: 0 },
       { key: "taxAmount", label: "Tax Amount", type: "number", required: true, min: 0 },
       { key: "notes", label: "Notes", type: "textarea", placeholder: "Enter notes..." },
-      { key: "status", label: "Status", type: "select", required: true, options: ["Pending", "Paid", "Overdue"] }
+      { key: "status", label: "Status", type: "select", required: true, options: [
+        { value: "Pending", label: "Pending" },
+        { value: "Paid", label: "Paid" },
+        { value: "Overdue", label: "Overdue" }
+      ]}
     ]);
 
-    // Get ID function
-    const getInvoiceId = (invoice) => invoice.invoiceId;
+    const getInvoiceId = (invoice) => invoice.invoiceId
 
-    // CRUD actions (replace with real API calls)
-    const fetchOutgoingInvoices = async () => {
-      outgoingInvoices.value = [
-        {
-          invoiceId: "1",
-          invoiceNo: "INV-1001",
-          invoiceDate: "2025-09-01",
-          supplier: "ABC Supplies",
-          refNo: "PO-555",
-          totalAmount: 2500,
-          status: "Pending",
-          createdOn: "2025-09-05",
-          createdBy: "Admin"
-        }
-      ];
-    };
+    const fetchOutgoingInvoices = () => store.fetchInvoices()
+    const addOutgoingInvoice    = (data) => store.addInvoice(data)
+    const updateOutgoingInvoice = (id, data) => store.updateInvoice(id, data)
+    const deleteOutgoingInvoice = (id) => store.deleteInvoice(id)
 
-    const addOutgoingInvoice = async (invoice) => {
-      console.log("Adding invoice", invoice);
-    };
-
-    const updateOutgoingInvoice = async (invoice) => {
-      console.log("Updating invoice", invoice);
-    };
-
-    const deleteOutgoingInvoice = async (id) => {
-      console.log("Deleting invoice", id);
-    };
-
-    onMounted(fetchOutgoingInvoices);
+    onMounted(fetchOutgoingInvoices)
 
     return {
       outgoingInvoices,

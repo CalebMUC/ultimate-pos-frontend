@@ -7,6 +7,8 @@ export const UseDocumentStore = defineStore('DocumentStore', {
     uploadedFileId: null,
     previewBlobUrl: null,
     data: [], 
+    loading: false,
+    error: null,
   }),
 
 getters: {
@@ -16,59 +18,66 @@ getters: {
 
 
   actions: {
-    async upload({ fileName, file },token) {
+    async upload({ fileName, file }) {
+      this.loading = true
+      this.error = null
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('fileName', fileName); // if your backend expects it
-
-      // const res = await fileService.uploadFile(formData);
-
-     axios.uploadFile(formData,token)
-      .then(response => {
-                    this.data = response.data;
-                    // this.uploadedFileId = res.data.fileId;
-                })
-                .catch(error => {
-                    this.error=error;
-                    this.loading = false;
-                });
-
+      formData.append('fileName', fileName);
+      try {
+        const response = await axios.uploadFile(formData)
+        this.data = response.data;
+      } catch (error) {
+        this.error = error?.message || 'Upload failed'
+      } finally {
+        this.loading = false
+      }
     },
 
-   async fetchDocuments(token){     
-              axios.GetFiles(token)
-                .then(response => {
-                    this.data = response.data;
-                    this.loading = false;
-                })
-                .catch(error => {
-                    this.error=error;
-                    this.loading = false;
-                });
-            },
-
-
-    async preview(fileId,token) {
-      const res = await axios.getFilePreview(fileId,token);
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      this.previewBlobUrl = URL.createObjectURL(blob);
+   async fetchDocuments(){
+      this.loading = true
+      this.error = null
+      try {
+        const response = await axios.GetFiles()
+        this.data = response.data;
+      } catch (error) {
+        this.error = error?.message || 'Failed to fetch documents'
+      } finally {
+        this.loading = false
+      }
     },
 
-    //GetFiles
+    async preview(fileId) {
+      this.loading = true
+      this.error = null
+      try {
+        const res = await axios.getFilePreview(fileId);
+        const blob = new Blob([res.data], { type: 'application/pdf' });
+        this.previewBlobUrl = URL.createObjectURL(blob);
+      } catch (error) {
+        this.error = error?.message || 'Preview failed'
+      } finally {
+        this.loading = false
+      }
+    },
 
- async download(fileId,token) {
-  const res = await axios.downloadFile(fileId,token);
-  const blob = new Blob([res.data], { type: res.headers['content-type'] });
-
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  
-  const disposition = res.headers['content-disposition'];
-  const filename = disposition?.match(/filename="?(.+)"?/)?.[1] || 'downloaded_file';
-  
-  link.download = filename;
-  link.click();
-}
-
+    async download(fileId) {
+      this.loading = true
+      this.error = null
+      try {
+        const res = await axios.downloadFile(fileId);
+        const blob = new Blob([res.data], { type: res.headers['content-type'] });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const disposition = res.headers['content-disposition'];
+        const filename = disposition?.match(/filename="?(.+)"?/)?.[1] || 'downloaded_file';
+        link.download = filename;
+        link.click();
+      } catch (error) {
+        this.error = error?.message || 'Download failed'
+      } finally {
+        this.loading = false
+      }
+    }
   },
 });

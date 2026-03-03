@@ -147,6 +147,7 @@ export const useDashboardStore = defineStore('DashboardStore', () => {
 
   const showSidebar = ref(false);
   const showMobileSidebar = ref(false);
+  const sidebarCollapsed = ref(false);
 
   // Getters (computed)
   const getGraph = computed(() => graph.value);
@@ -158,6 +159,10 @@ export const useDashboardStore = defineStore('DashboardStore', () => {
   const filterLargeScreen = computed(() => showSidebar.value);
 
   // Actions
+  function toggleSidebarCollapse() {
+    sidebarCollapsed.value = !sidebarCollapsed.value;
+  }
+
   function toggleResponsiveSidebar() {
     if (isTablet.value || isDesktop.value) {
       showSidebar.value = !showSidebar.value;
@@ -227,7 +232,9 @@ export const useDashboardStore = defineStore('DashboardStore', () => {
     getError,
     filterSmallScreen,
     filterLargeScreen,
+    sidebarCollapsed,
     toggleResponsiveSidebar,
+    toggleSidebarCollapse,
     getDashboardAverages,
     getGraphData,
     getRecentSales,

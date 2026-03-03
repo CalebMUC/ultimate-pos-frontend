@@ -1,5 +1,15 @@
 <template>
-  <div class="rounded-xl border border-gray-200 bg-white h-full p-4 shadow-sm">
+  <div class="rounded-xl border border-gray-200 bg-white h-full p-4 shadow-sm relative">
+    <!-- Loading Overlay -->
+    <div v-if="isLoading" class="absolute inset-0 bg-white/70 flex items-center justify-center z-20 rounded-xl">
+      <div class="flex flex-col items-center gap-2">
+        <svg class="animate-spin h-8 w-8 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-xs text-gray-500">Loading...</span>
+      </div>
+    </div>
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
       <div>
@@ -13,12 +23,14 @@
         <slot name="header-actions">
           <button 
             v-if="showExportButtons"
+            @click="exportPDF"
             class="flex items-center px-2 py-1.5 rounded-md bg-red-500 hover:bg-red-600 text-white text-xs font-medium shadow-sm transition-colors"
           >
             PDF
           </button>
           <button 
             v-if="showExportButtons"
+            @click="exportExcel"
             class="flex items-center px-2 py-1.5 rounded-md bg-green-500 hover:bg-green-600 text-white text-xs font-medium shadow-sm transition-colors"
           >
             XLS
@@ -38,16 +50,17 @@
         </button>
 
         <!-- Import Button (Optional) -->
-        <button
+        <label
           v-if="showImportButton"
-          class="flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium shadow transition-colors"
+          class="flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium shadow transition-colors cursor-pointer"
         >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
           Import
-        </button>
+          <input type="file" accept=".xlsx,.xls,.csv" class="hidden" @change="handleImport" />
+        </label>
 
         <!-- Custom Actions Slot -->
         <slot name="custom-actions"></slot>
@@ -346,8 +359,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import ReusableModal from '../Modals/ReusableModal.vue'
 import DynamicForm from '../Forms/DynamicForm.vue'
-import PurchaseForm from '../Forms/PurchasesForm.vue' // Import the PurchaseForm component
+import PurchaseForm from '../Forms/PurchasesForm.vue'
 import Swal from 'sweetalert2'
+import * as XLSX from 'xlsx'
 
 
 export default {
@@ -369,6 +383,8 @@ export default {
     searchPlaceholder: { type: String, default: "Search..." },
     showExportButtons: { type: Boolean, default: false },
     showImportButton: { type: Boolean, default: false },
+    // Pass true when the parent store is fetching data
+    loading: { type: Boolean, default: false },
     // Optional: Custom function to extract ID from items
     getId: { type: Function, default: (item) => item.id },
     // New prop to explicitly indicate if this is a purchase form
@@ -395,6 +411,7 @@ export default {
     const currentItem = ref(null)
     const formData = ref({})
     const errors = ref({})
+    const isLoading = ref(false)
     
     const pageSizeOptions = [5, 10, 20, 50, 100]
 
@@ -537,20 +554,20 @@ export default {
     
     const handleConfirm = async () => {
       try {
+        isLoading.value = true
         if (currentItem.value) {
-          // Update existing item
           await props.updateItem(props.getId(currentItem.value), formData.value)
           Swal.fire('Success', `${props.moduleNameSingular} updated successfully`, 'success')
         } else {
-          // Add new item
           await props.addItem(formData.value)
           Swal.fire('Success', `${props.moduleNameSingular} added successfully`, 'success')
         }
         closeModal()
-        // Refresh data
         await props.fetchData()
       } catch (error) {
         Swal.fire('Error', error.message, 'error')
+      } finally {
+        isLoading.value = false
       }
     }
 
@@ -565,12 +582,14 @@ export default {
       
       if (result.isConfirmed) {
         try {
+          isLoading.value = true
           await props.deleteItem(props.getId(item))
           Swal.fire('Deleted!', `${props.moduleNameSingular} has been deleted.`, 'success')
-          // Refresh data
           await props.fetchData()
         } catch (error) {
           Swal.fire('Error', error.message, 'error')
+        } finally {
+          isLoading.value = false
         }
       }
     }
@@ -580,8 +599,90 @@ export default {
       emit('open-permission-modal', item)
     }
 
-    onMounted(() => {
-      props.fetchData()
+    // ── Export: Excel ────────────────────────────────────────────────────────
+    const exportExcel = () => {
+      const exportData = filteredData.value.map(item => {
+        const row = {}
+        props.columns.forEach(col => { row[col.label] = item[col.field] ?? '' })
+        return row
+      })
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, props.title || 'Sheet1')
+      XLSX.writeFile(wb, `${props.title || 'export'}_${new Date().toISOString().slice(0,10)}.xlsx`)
+    }
+
+    // ── Export: PDF (print-friendly) ─────────────────────────────────────────
+    const exportPDF = () => {
+      const printContent = `
+        <html><head><title>${props.title}</title>
+        <style>
+          body { font-family: Arial, sans-serif; font-size: 12px; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
+          th { background: #f3f4f6; font-weight: 600; }
+          h2 { margin-bottom: 8px; }
+        </style></head><body>
+        <h2>${props.title}</h2>
+        <table>
+          <thead><tr>${props.columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${filteredData.value.map(row =>
+              `<tr>${props.columns.map(c => `<td>${row[c.field] ?? ''}</td>`).join('')}</tr>`
+            ).join('')}
+          </tbody>
+        </table></body></html>`
+      const w = window.open('', '_blank')
+      w.document.write(printContent)
+      w.document.close()
+      w.print()
+    }
+
+    // ── Import: Excel/CSV ─────────────────────────────────────────────────────
+    const handleImport = (event) => {
+      const file = event.target.files[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'binary' })
+          const ws = wb.Sheets[wb.SheetNames[0]]
+          const rows = XLSX.utils.sheet_to_json(ws)
+          if (!rows.length) {
+            Swal.fire('Warning', 'The imported file contains no data.', 'warning')
+            return
+          }
+          const confirmed = await Swal.fire({
+            title: `Import ${rows.length} records?`,
+            text: 'This will add all rows from the file.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, import'
+          })
+          if (confirmed.isConfirmed) {
+            let successCount = 0
+            for (const row of rows) {
+              try { await props.addItem(row); successCount++ } catch {}
+            }
+            await props.fetchData()
+            Swal.fire('Done', `${successCount} of ${rows.length} records imported successfully.`, 'success')
+          }
+        } catch (err) {
+          Swal.fire('Error', 'Failed to read the file. Ensure it is a valid Excel or CSV file.', 'error')
+        }
+      }
+      reader.readAsBinaryString(file)
+      // Reset input so same file can be re-imported
+      event.target.value = ''
+    }
+
+    onMounted(async () => {
+      isLoading.value = true
+      try {
+        await props.fetchData()
+      } finally {
+        isLoading.value = false
+      }
     })
 
     return { 
@@ -612,7 +713,11 @@ export default {
       closeModal,
       handleConfirm,
       confirmDelete,
-      openPermissionModal
+      openPermissionModal,
+      exportExcel,
+      exportPDF,
+      handleImport,
+      isLoading,
     }
   }
 }

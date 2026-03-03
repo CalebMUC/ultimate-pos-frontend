@@ -19,7 +19,9 @@
           :type="field.type"
           :placeholder="field.placeholder"
           :required="field.required"
-          class="w-full border border-gray-200 rounded-md p-1.5 text-xs focus:ring-1 focus:ring-blue-100 focus:border-blue-100 transition-all"
+          @blur="validateField(field)"
+          :class="[errors[field.key] ? 'border-red-400 focus:ring-red-200' : 'border-gray-200 focus:ring-blue-100 focus:border-blue-100']"
+          class="w-full border rounded-md p-1.5 text-xs focus:ring-1 transition-all"
         />
 
         <input
@@ -28,7 +30,11 @@
           type="number"
           :placeholder="field.placeholder"
           :required="field.required"
-          class="w-full border border-gray-200 rounded-md p-1.5 text-xs focus:ring-1 focus:ring-blue-100 focus:border-blue-100 transition-all"
+          :min="field.min"
+          :max="field.max"
+          @blur="validateField(field)"
+          :class="[errors[field.key] ? 'border-red-400 focus:ring-red-200' : 'border-gray-200 focus:ring-blue-100 focus:border-blue-100']"
+          class="w-full border rounded-md p-1.5 text-xs focus:ring-1 transition-all"
         />
 
         <input
@@ -44,10 +50,12 @@
           v-else-if="field.type === 'date'"
           v-model="formData[field.key]"
           type="date"
-          class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-transparent text-xs"
+          :class="[errors[field.key] ? 'border-red-400 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-400']"
+          class="w-full px-2 py-1 border rounded-md focus:outline-none focus:ring-1 focus:border-transparent text-xs"
           :min="field.minDate || ''"
           :max="field.maxDate || ''"
           :required="field.required || false"
+          @blur="validateField(field)"
         />
 
         <select
@@ -77,7 +85,7 @@
         ></textarea>
 
         <!-- Error Message -->
-        <p v-if="errors[field.key]" class="text-xs te xt-red-600 mt-0.5">
+        <p v-if="errors[field.key]" class="text-xs text-red-600 mt-0.5">
           {{ errors[field.key] }}
         </p>
 
@@ -254,22 +262,21 @@ export default {
       { deep: true }
     );
 
-    // --- Validation ---
     const validateField = (field) => {
       const value = formData.value[field.key];
       delete errors.value[field.key];
-      if (field.required && !value) {
+      if (field.required && (value === '' || value === null || value === undefined)) {
         errors.value[field.key] = `${field.label} is required`;
         emit("validate", errors.value);
         return;
       }
-      if (!value) {
+      if (!value && value !== 0) {
         emit("validate", errors.value);
         return;
       }
       if (field.type === "email") {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(value.trim())) {
+        if (!emailPattern.test(String(value).trim())) {
           errors.value[field.key] = `${field.label} must be a valid email`;
         }
       }
@@ -284,6 +291,16 @@ export default {
         if (!passwordPattern.test(value)) {
           errors.value[field.key] =
             `${field.label} must be at least 8 characters, include 1 uppercase, 1 number, and 1 special character`;
+        }
+      }
+      if (field.type === "number") {
+        const num = parseFloat(value)
+        if (isNaN(num)) {
+          errors.value[field.key] = `${field.label} must be a valid number`
+        } else if (field.min !== undefined && num < field.min) {
+          errors.value[field.key] = `${field.label} must be at least ${field.min}`
+        } else if (field.max !== undefined && num > field.max) {
+          errors.value[field.key] = `${field.label} must be at most ${field.max}`
         }
       }
       emit("validate", errors.value);
